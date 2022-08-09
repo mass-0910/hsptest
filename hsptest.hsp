@@ -1,0 +1,115 @@
+#runtime "hsp3cl"
+#include "exception_code.as"
+#include "hspext.as"
+
+sdim stdout, 20000
+sdim ln, 20000
+
+test_pass = 0
+test_fail = 0
+
+// correct test code
+if dirinfo(4) != "" : chdir dirinfo(4)
+dirlist testcodes, "*.hsp", 1
+notesel testcodes
+file_num = noteinfo(0)
+
+repeat file_num
+
+    // continue if file is not test
+    notesel testcodes
+    noteget file_name, cnt
+    if instr(file_name, 0, "test") == -1 : continue
+
+    notesel testcode_buf
+    noteload file_name
+
+    repeat
+
+        // get test labels
+        notesel testcode_buf
+        l = notefind("*test", 1)
+        noteget label_name, l
+        test_name = strmid(label_name, 1, 1024)
+        if l == -1 : break
+        notedel l
+
+        // input label name
+        generated_code_buf = "goto *__start\n"
+        generated_code_buf += "#include \"test.as\"\n"
+        generated_code_buf += "#include \"" + file_name + "\"\n"
+        generated_code_buf += "*__start\n"
+        generated_code_buf += "gosub *__testinit\n"
+        generated_code_buf += "gosub " + label_name + "\n"
+        generated_code_buf += "mes \"&RESULT&{" + "PASS,0,0,#" + "}\"\n"
+        generated_code_buf += "end 1"
+        notesel generated_code_buf
+        notesave "__testtmp.hsp"
+
+        // compile test
+        hspcmp = dirinfo(1) + "\\hspcmp -d --compath=" + dirinfo(1) + "\\common .\\__testtmp.hsp"
+        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl __testtmp.ax"
+        stdout = ""
+        pipeexec stdout, hspcmp
+        repeat
+            pipeget ln
+            if stat == 0 : break
+            wait 1
+        loop
+        if instr(stdout, 0, "#No error detected.") == -1 {
+            strrep stdout, "\n", "\nhspcmp:"
+            mes test_name + "@" + file_name + ": FAIL: compile error"
+            mes "hspcmp:" + stdout
+            test_fail++
+            continue
+        }
+
+        // execute test
+        stdout = ""
+        ln = ""
+        pipeexec stdout, hsp3cl_runtime
+        repeat
+            pipeget ln
+            if stat == 0 : break
+            wait 1
+        loop
+
+        // correct result
+        notesel stdout
+        resline = notefind("&RESULT&", 1)
+        noteget resultstr, resline
+        notedel resline
+        notedel resline
+        strrep stdout, "\n", "\n" + label_name + ":"
+        stdout = label_name + ":" + stdout
+        resultstr = strmid(resultstr, 9, 1024)
+        resultstr = strtrim(resultstr, , '}')
+        getstr result, resultstr, 0, ','
+        i = strsize
+        getstr errline, resultstr, i, ','
+        i += strsize
+        getstr errcode, resultstr, i, ','
+        i += strsize
+        getstr errdetail, resultstr, i, ','
+
+        // output result
+        if result == "PASS" {
+            mes test_name + "@" + file_name + ":" + " PASS"
+            test_pass++
+        } else {
+            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + ": " + errdetail
+            test_fail++
+        }
+    loop
+loop
+
+if test_fail == 0 {
+    mes "======= all " + str(test_pass) + " passed! ======="
+} else {
+    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed ======="
+}
+
+exist "__testtmp.hsp" : if strsize != -1 : delete "__testtmp.hsp"
+exist "__testtmp.ax" : if strsize != -1 : delete "__testtmp.ax"
+
+end test_fail
