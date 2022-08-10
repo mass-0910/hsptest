@@ -1,6 +1,8 @@
 #runtime "hsp3cl"
+#packopt orgpath 1
 #include "exception_code.as"
 #include "hspext.as"
+#include "hspcmp.as"
 
 sdim stdout, 20000
 sdim ln, 20000
@@ -47,15 +49,11 @@ repeat file_num
         notesave "__testtmp.hsp"
 
         // compile test
-        hspcmp = dirinfo(1) + "\\hspcmp -d --compath=" + dirinfo(1) + "\\common .\\__testtmp.hsp"
-        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl __testtmp.ax"
-        stdout = ""
-        pipeexec stdout, hspcmp
-        repeat
-            pipeget ln
-            if stat == 0 : break
-            wait 1
-        loop
+        hsc_ini "./__testtmp.hsp"
+        hsc_compath dirinfo(1) + "\\common"
+        hsc_comp 1, 0, 0
+        hsc_getmes stdout
+        hsc_bye
         if instr(stdout, 0, "#No error detected.") == -1 {
             strrep stdout, "\n", "\nhspcmp:"
             mes test_name + "@" + file_name + ": FAIL: compile error"
@@ -65,6 +63,7 @@ repeat file_num
         }
 
         // execute test
+        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe __testtmp.ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
