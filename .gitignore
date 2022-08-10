@@ -1,3 +1,6 @@
+.vscode
 *.ax
 hsptmp
 packfile
+*.exe
+*.dll
