@@ -6,7 +6,7 @@ HSP3言語で書かれたプログラムをテストするためのフレーム�
 
 以下の手順でhsptestをインストールすることができます。
 
-1. Releasesからhsptest.zipをダウンロードする
+1. [Releases](https://github.com/mass-0910/hsptest/releases/latest)からhsptest.zipをダウンロードする
 2. hsptest.exeが含まれるフォルダを環境変数PATHに登録する
 
 ## 使い方
