@@ -1,5 +1,4 @@
 #runtime "hsp3cl"
-#include "exception_code.as"
 
 goto *__test_as_end
 
