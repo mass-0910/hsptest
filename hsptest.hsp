@@ -6,6 +6,7 @@
 #include "hspext.as"
 #include "hspcmp.as"
 #include "make_testcall_script.hsp"
+#include "result_format.as"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
@@ -82,22 +83,9 @@ repeat file_num
         loop
 
         // correct result
-        notesel stdout
-        resline = notefind("&RESULT&", 1)
-        noteget resultstr, resline
-        notedel resline
-        notedel resline
+        parse_result_format stdout, result, errline, errdetail, stdout
         strrep stdout, "\n", "\n" + label_name + ":"
         stdout = label_name + ":" + stdout
-        resultstr = strmid(resultstr, 9, 1024)
-        resultstr = strtrim(resultstr, , '}')
-        getstr result, resultstr, 0, ','
-        i = strsize
-        getstr errline, resultstr, i, ','
-        i += strsize
-        getstr errcode, resultstr, i, ','
-        i += strsize
-        getstr errdetail, resultstr, i, ','
 
         // output result
         if result == "PASS" {

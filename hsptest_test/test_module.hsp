@@ -1,0 +1,16 @@
+#include "assertion.as"
+#include "result_format.as"
+
+*test1
+    stdout = get_pass_result_format()
+    parse_result_format stdout, result, error_line, error_message, dummy
+    assertEqual result, "PASS"
+    return
+
+*test2
+    stdout = get_fail_result_format(10, "foo")
+    parse_result_format stdout, result, error_line, error_message, dummy
+    assertEqual result, "FAIL"
+    assertEqual error_line, 10
+    assertEqual error_message, "foo"
+    return

@@ -19,7 +19,7 @@
     generated_code_buf += "*__start\n"
     generated_code_buf += "gosub *__testinit\n"
     generated_code_buf += "gosub " + testlabel_name + "\n"
-    generated_code_buf += "mes \"&RESULT&{" + "PASS,0,0,#" + "}\"\n"
+    generated_code_buf += "mes get_pass_result_format()\n"
     generated_code_buf += "end 1"
     notesel generated_code_buf
     notesave temp_test_name

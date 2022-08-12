@@ -1,4 +1,8 @@
+#ifndef test_as_included
+#define test_as_included
+
 #runtime "hsp3cl"
+#include "result_format.as"
 
 goto *__test_as_end
 
@@ -8,7 +12,9 @@ goto *__test_as_end
     return
 
 *__error
-    mes "&RESULT&{" + "FAIL" + "," + lparam + "," + wparam + "," + errmsg(wparam - 1) + "}"
+    mes get_fail_result_format(lparam, errmsg(wparam - 1))
     end wparam
 
 *__test_as_end
+
+#endif
