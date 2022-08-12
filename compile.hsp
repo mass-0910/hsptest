@@ -1,0 +1,40 @@
+// hsptest.hspをexeにコンパイルするためのスクリプト
+
+#runtime "hsp3cl"
+#packopt name "compile"
+#packopt orgpath 0
+#packopt version "VERSION"
+#include "hspcmp.as"
+
+*init
+    fname = "./hsptest.hsp"
+
+*mkstart
+
+	srcdir=getpath(fname,32+16)
+	srcname=getpath(fname,1+8+16)
+
+	chdir srcdir
+
+	mes "Compiling..."+fname
+
+	objname="start.ax"		; output object file
+	cmpmode=0
+	ppmode=4
+
+	hsc_ini srcname+".hsp"
+	hsc_objname objname
+	hsc_comp cmpmode,ppmode,0
+	res=stat:if res!=0 : dialog "ERROR" : goto *goerror
+
+	mes "Make .exe file..."
+    mes srcname
+	hsc3_make dirinfo(1)+"\\"+srcname+".dpm",1
+
+	mes "Done."
+    end 0
+
+*goerror
+	hsc_getmes mesbuf
+    mes mesbuf
+    end 1
