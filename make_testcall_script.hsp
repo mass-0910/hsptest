@@ -1,0 +1,38 @@
+#ifndef make_testcall_script_hsp_included
+#define make_testcall_script_hsp_included
+
+#module
+
+/*
+テストスクリプトを生成する
+引数
+    testfile_name: スクリプト内でincludeされるテストスクリプト名
+    testlabel_name: スクリプト内でincludeされるテストサブルーチンラベル名
+返り値
+    str: テストスクリプトが保存されたファイルへのパス
+ */
+#defcfunc make_temp_test str testfile_name, str testlabel_name
+    temp_test_name = "__testtmp.hsp"
+    generated_code_buf = "goto *__start\n"
+    generated_code_buf += "#include \"test.as\"\n"
+    generated_code_buf += "#include \"" + testfile_name + "\"\n"
+    generated_code_buf += "*__start\n"
+    generated_code_buf += "gosub *__testinit\n"
+    generated_code_buf += "gosub " + testlabel_name + "\n"
+    generated_code_buf += "mes \"&RESULT&{" + "PASS,0,0,#" + "}\"\n"
+    generated_code_buf += "end 1"
+    notesel generated_code_buf
+    notesave temp_test_name
+    return temp_test_name
+
+/*
+テストスクリプトおよびaxファイルを削除する
+ */
+#deffunc delete_temp_test
+    exist temp_test_name : if strsize != -1 : delete temp_test_name
+    exist getpath(temp_test_name, 1) + ".ax" : if strsize != -1 : delete getpath(temp_test_name, 1) + ".ax"
+    return
+
+#global
+
+#endif

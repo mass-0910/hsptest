@@ -5,6 +5,7 @@
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
+#include "make_testcall_script.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
@@ -52,20 +53,11 @@ repeat file_num
         if l == -1 : break
         notedel l
 
-        // input label name
-        generated_code_buf = "goto *__start\n"
-        generated_code_buf += "#include \"test.as\"\n"
-        generated_code_buf += "#include \"" + file_name + "\"\n"
-        generated_code_buf += "*__start\n"
-        generated_code_buf += "gosub *__testinit\n"
-        generated_code_buf += "gosub " + label_name + "\n"
-        generated_code_buf += "mes \"&RESULT&{" + "PASS,0,0,#" + "}\"\n"
-        generated_code_buf += "end 1"
-        notesel generated_code_buf
-        notesave "__testtmp.hsp"
+        // make temporary testcall script
+        temptest_path = make_temp_test(file_name, label_name)
 
         // compile test
-        hsc_ini "./__testtmp.hsp"
+        hsc_ini temptest_path
         hsc_compath dirinfo(1) + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
@@ -79,7 +71,7 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe __testtmp.ax"
+        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
@@ -115,6 +107,9 @@ repeat file_num
             mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + ": " + errdetail
             test_fail++
         }
+
+        // delete temporary testcall script
+        delete_temp_test
     loop
 loop
 
@@ -127,8 +122,5 @@ if test_pass == 0 && test_fail == 0 {
 } else {
     mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ======="
 }
-
-exist "__testtmp.hsp" : if strsize != -1 : delete "__testtmp.hsp"
-exist "__testtmp.ax" : if strsize != -1 : delete "__testtmp.ax"
 
 end test_fail
