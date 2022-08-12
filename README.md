@@ -61,12 +61,13 @@ hsptestで実行されるテストは、テスト一つに対して一つのサ�
 
 テストごとにhsp3clランタイムのインスタンスが起動するため、他のテストサブルーチンで発生した変数代入やエラーなどは現在実行してるテストサブルーチンには影響しません。テストサブルーチン内でなにかのエラーが発生した場合、またはassertionが失敗したとき、そのテストは失敗となります。
 
-hsptestが実行終了すると、以下のような出力がされます。テストサブルーチンのラベル名、テスト結果、エラー行数、エラーの種類、pass/failの数が表示されます。
+hsptestが実行終了すると、以下のような出力がされます。テストサブルーチンのラベル名、テスト結果、エラー行数、エラーの種類、pass/failの数、テストに掛かった時間が表示されます。
 ```
+HSP 3.6.0.7, hsptest 0.4
 test1@test_example.hsp: PASS
 test2@test_example.hsp: PASS
 test3@test_example.hsp: FAIL at line 22: Divided by 0
-======= 1 failed, 2 passed =======
+======= 1 failed, 2 passed in 0.3 seconds =======
 ```
 
 ## `assertion.as`の使い方

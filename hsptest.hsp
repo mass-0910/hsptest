@@ -1,8 +1,12 @@
 #runtime "hsp3cl"
+#packopt name "hsptest"
 #packopt orgpath 1
+#packopt version "VERSION"
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
+#uselib "winmm.dll"
+#cfunc timeGetTime "timeGetTime"
 
 sdim stdout, 20000
 sdim ln, 20000
@@ -15,6 +19,18 @@ if dirinfo(4) != "" : chdir dirinfo(4)
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
 file_num = noteinfo(0)
+
+// output first message
+hspver_str = strf("%4x", hspver)
+mes "HSP ", 1
+repeat 4
+    mes strmid(hspver_str, cnt, 1), 1
+    if cnt == 3: mes ", ", 1 : break
+    mes ".", 1
+loop
+mes "hsptest 0.4"
+
+start_time = timeGetTime()
 
 repeat file_num
 
@@ -50,7 +66,7 @@ repeat file_num
 
         // compile test
         hsc_ini "./__testtmp.hsp"
-        hsc_compath dirinfo(1) + "\\common"
+        hsc_compath dirinfo(1) + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
@@ -102,10 +118,14 @@ repeat file_num
     loop
 loop
 
-if test_fail == 0 {
-    mes "======= all " + str(test_pass) + " passed! ======="
+spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
+
+if test_pass == 0 && test_fail == 0 {
+    mes "======= no tests ran in " + spend_time + " seconds =========="
+} else : if test_fail == 0 {
+    mes "======= all " + str(test_pass) + " passed in " + spend_time + " seconds ======="
 } else {
-    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed ======="
+    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ======="
 }
 
 exist "__testtmp.hsp" : if strsize != -1 : delete "__testtmp.hsp"
