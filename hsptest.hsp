@@ -68,6 +68,7 @@ repeat file_num
             mes test_name + "@" + file_name + ": FAIL: compile error"
             mes "hspcmp:" + stdout
             test_fail++
+            delete_temp_test
             continue
         }
 
