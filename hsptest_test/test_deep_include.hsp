@@ -1,6 +1,7 @@
 #include "include\\a\\module1.as"
 #include "include\\a\\module2.as"
 #include "include\\module3.as"
+#include "include/module4.as"
 #include "assertion.as"
 
 *test1
@@ -13,4 +14,8 @@
 
 *test3
     assertEqual func3(), 3
+    return
+
+*test4
+    assertEqual func4(), 4
     return

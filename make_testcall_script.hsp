@@ -9,13 +9,19 @@
 一時ディレクトリ内の構成を守るためのフォルダを追加で作成する
 例えば、#include "path/to/module.as"と記述されていた場合、"path/to"フォルダを作成する
 */
-#deffunc local make_folder_in_path str path, local parent
+#deffunc local make_folder_in_path str path, local parent, local buf, local buf_size
     parent = getpath(path, 32)
+    strrep parent, "/", "\\"
     parent = strtrim(parent, 2, '\\')
-    parent = strtrim(parent, 2, '/')
     if parent == "" : return
     make_folder_in_path parent
-    mkdir temp_test_env_dir + "\\" + parent
+    dirlist2h@ 1
+    dirlist2@ buf_size, "*", 1 | 2, '\\'
+    sdim buf, buf_size + 1
+    dirlist2r@ buf
+    if instr(buf, 0, temp_test_env_dir + "\\" + parent) == -1 {
+        mkdir temp_test_env_dir + "\\" + parent
+    }
     return
 
 /*
@@ -41,6 +47,7 @@
                 getstr copy_file_name, l, index, '"', 1024
                 index += strsize
                 getstr copy_file_name, l, index, '"', 1024
+                strrep copy_file_name, "\\\\", "\\"
                 // コピーするファイル名がパス表現のとき、再現フォルダを作成
                 if getpath(copy_file_name, 32) != "" {
                     make_folder_in_path copy_file_name
