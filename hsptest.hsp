@@ -84,7 +84,7 @@ repeat file_num
         loop
 
         // correct result
-        parse_result_format stdout, result, errline, errdetail, stdout
+        parse_result_format stdout, result, errline, errfile, errdetail, stdout
         strrep stdout, "\n", "\n" + label_name + ":"
         stdout = label_name + ":" + stdout
 
@@ -93,7 +93,7 @@ repeat file_num
             mes test_name + "@" + file_name + ":" + " PASS"
             test_pass++
         } else {
-            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + ": " + errdetail
+            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + " of " + errfile + ": " + errdetail
             test_fail++
         }
 

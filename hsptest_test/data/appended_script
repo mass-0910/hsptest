@@ -1,0 +1,18 @@
+#module
+
+#deffunc func str a, local b
+    return a + " hogehoge"
+
+#deffunc str a, \
+        local b,\
+        local c
+    return a + b + c
+
+#global
+
+*main
+    func "fugafuga"
+    a = {"
+    aaa
+    bbb
+    "}

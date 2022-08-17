@@ -12,7 +12,7 @@ goto *__test_as_end
     return
 
 *__error
-    mes get_fail_result_format(lparam, errmsg(wparam - 1))
+    mes get_fail_result_format(__errline@, __errfile@, errmsg(wparam - 1))
     end wparam
 
 *__test_as_end

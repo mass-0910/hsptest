@@ -9,7 +9,7 @@
     成功時のstdout文字列
 */
 #defcfunc get_pass_result_format
-    return "&RESULT&{PASS,0,#}"
+    return "&RESULT&{PASS,0,#,#}"
 
 /*
 失敗時のstdout文字列を返す
@@ -19,8 +19,8 @@
 返り値
     失敗時のstdout文字列
 */
-#defcfunc get_fail_result_format int error_line, str error_message
-    return "&RESULT&{FAIL," + error_line + "," + error_message + "}"
+#defcfunc get_fail_result_format int error_line, str error_file, str error_message
+    return "&RESULT&{FAIL," + error_line + "," + error_file + "," + error_message + "}"
 
 /*
 stdoutから結果をパースする
@@ -31,7 +31,7 @@ stdoutから結果をパースする
     error_message: エラーメッセージを格納する変数
     removed_stdout: 特殊フォーマット文字列を全て取り除いた標準出力が格納される変数
 */
-#deffunc parse_result_format str stdout, var result, var error_line, var error_message, var removed_stdout
+#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, var removed_stdout
     buf = stdout
     notesel buf
     resline = notefind("&RESULT&", 1)
@@ -44,6 +44,8 @@ stdoutから結果をパースする
     getstr result, resultstr, 0, ','
     i = strsize
     getstr error_line, resultstr, i, ','
+    i += strsize
+    getstr error_file, resultstr, i, ','
     i += strsize
     getstr error_message, resultstr, i, ','
     return
