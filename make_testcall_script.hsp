@@ -8,6 +8,8 @@
 /*
 一時ディレクトリ内の構成を守るためのフォルダを追加で作成する
 例えば、#include "path/to/module.as"と記述されていた場合、"path/to"フォルダを作成する
+引数
+    path: フォルダを含むファイルへのパス
 */
 #deffunc local make_folder_in_path str path, local parent, local buf, local buf_size
     parent = getpath(path, 32)
@@ -26,6 +28,9 @@
 
 /*
 テストスクリプト内で呼び出されたスクリプトファイルを一時フォルダにコピーする
+引数
+    file_name: includeを検出するファイルの名前
+    init: 再帰関数のエントリ時に1にする引数
 */
 #deffunc local copy_included_test_file_to_temp_dir str file_name, int init, local test_script_buf, local file_line_num, local l, local addinst, local index, local copy_file_name
     notesel test_script_buf
