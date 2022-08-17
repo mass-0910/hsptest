@@ -1,8 +1,14 @@
 #runtime "hsp3cl"
+#packopt name "hsptest"
 #packopt orgpath 1
+#packopt version "VERSION"
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
+#include "make_testcall_script.hsp"
+#include "result_format.as"
+#uselib "winmm.dll"
+#cfunc timeGetTime "timeGetTime"
 
 sdim stdout, 20000
 sdim ln, 20000
@@ -15,6 +21,18 @@ if dirinfo(4) != "" : chdir dirinfo(4)
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
 file_num = noteinfo(0)
+
+// output first message
+hspver_str = strf("%4x", hspver)
+mes "HSP ", 1
+repeat 4
+    mes strmid(hspver_str, cnt, 1), 1
+    if cnt == 3: mes ", ", 1 : break
+    mes ".", 1
+loop
+mes "hsptest 0.4"
+
+start_time = timeGetTime()
 
 repeat file_num
 
@@ -36,21 +54,12 @@ repeat file_num
         if l == -1 : break
         notedel l
 
-        // input label name
-        generated_code_buf = "goto *__start\n"
-        generated_code_buf += "#include \"test.as\"\n"
-        generated_code_buf += "#include \"" + file_name + "\"\n"
-        generated_code_buf += "*__start\n"
-        generated_code_buf += "gosub *__testinit\n"
-        generated_code_buf += "gosub " + label_name + "\n"
-        generated_code_buf += "mes \"&RESULT&{" + "PASS,0,0,#" + "}\"\n"
-        generated_code_buf += "end 1"
-        notesel generated_code_buf
-        notesave "__testtmp.hsp"
+        // make temporary testcall script
+        temptest_path = make_temp_test(file_name, label_name)
 
         // compile test
-        hsc_ini "./__testtmp.hsp"
-        hsc_compath dirinfo(1) + "\\common"
+        hsc_ini temptest_path
+        hsc_compath dirinfo(1) + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
@@ -59,11 +68,12 @@ repeat file_num
             mes test_name + "@" + file_name + ": FAIL: compile error"
             mes "hspcmp:" + stdout
             test_fail++
+            delete_temp_test
             continue
         }
 
         // execute test
-        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe __testtmp.ax"
+        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
@@ -74,41 +84,32 @@ repeat file_num
         loop
 
         // correct result
-        notesel stdout
-        resline = notefind("&RESULT&", 1)
-        noteget resultstr, resline
-        notedel resline
-        notedel resline
+        parse_result_format stdout, result, errline, errfile, errdetail, stdout
         strrep stdout, "\n", "\n" + label_name + ":"
         stdout = label_name + ":" + stdout
-        resultstr = strmid(resultstr, 9, 1024)
-        resultstr = strtrim(resultstr, , '}')
-        getstr result, resultstr, 0, ','
-        i = strsize
-        getstr errline, resultstr, i, ','
-        i += strsize
-        getstr errcode, resultstr, i, ','
-        i += strsize
-        getstr errdetail, resultstr, i, ','
 
         // output result
         if result == "PASS" {
             mes test_name + "@" + file_name + ":" + " PASS"
             test_pass++
         } else {
-            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + ": " + errdetail
+            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + " of " + errfile + ": " + errdetail
             test_fail++
         }
+
+        // delete temporary testcall script
+        delete_temp_test
     loop
 loop
 
-if test_fail == 0 {
-    mes "======= all " + str(test_pass) + " passed! ======="
-} else {
-    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed ======="
-}
+spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
-exist "__testtmp.hsp" : if strsize != -1 : delete "__testtmp.hsp"
-exist "__testtmp.ax" : if strsize != -1 : delete "__testtmp.ax"
+if test_pass == 0 && test_fail == 0 {
+    mes "======= no tests ran in " + spend_time + " seconds =========="
+} else : if test_fail == 0 {
+    mes "======= all " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+} else {
+    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+}
 
 end test_fail

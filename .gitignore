@@ -4,3 +4,4 @@ hsptmp
 packfile
 *.exe
 *.dll
+*tmp*

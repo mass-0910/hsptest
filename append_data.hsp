@@ -1,0 +1,134 @@
+#ifndef append_data_hsp_included
+#define append_data_hsp_included
+
+#include "result_format.as"
+
+#module
+
+#define SUCCESS 1
+#define FAILURE 0
+
+#defcfunc is_name_alphabet int ch
+    return ('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') || ('0' <= ch && ch <= '9') || ch == '_'
+
+#defcfunc is_space int ch
+    return ch == ' ' || ch == '\t'
+
+#defcfunc is_entry_inst str line_str
+    index = 0
+    init_status = 1
+    line_str_buf = line_str
+    status = init_status
+    result = SUCCESS
+    entry_inst = "deffunc defcfunc modfunc modcfunc modinit modterm"
+    split entry_inst, " ", entry_inst_list
+    repeat
+        ch = peek(line_str_buf, index)
+        if status == 1 {
+            if ch == '*' {
+                status = 2
+            } else : if ch == '#' {
+                status = 6
+            } else : if is_space(ch) {
+                status = 1
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 2 {
+            if is_name_alphabet(ch) {
+                status = 3
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 3 {
+            if is_name_alphabet(ch) {
+                status = 3
+            } else : if is_space(ch) {
+                status = 4
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 4 {
+            if is_space(ch) == 0 {
+                result = FAILURE
+            }
+        } else : if status == 6 {
+            repeat length(entry_inst_list)
+                if instr(line_str_buf, index, entry_inst_list(cnt)) == 0 {
+                    status = 7
+                    index += strlen(entry_inst_list(cnt)) - 1
+                    break
+                }
+            loop
+            if status == 6 : result = FAILURE
+        } else : if status == 7 {
+            if is_space(ch) {
+                status = 8
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 8 {
+            // success
+        }
+        if result == FAILURE : break
+        index++
+        if index >= strlen(line_str_buf) : break
+    loop
+    return result
+
+#defcfunc is_multi_line str line_str
+    line_str_buf = line_str
+    result = 0
+    repeat strlen(line_str_buf)
+        ch = peek(line_str_buf, strlen(line_str_buf) - 1 - cnt)
+        if is_space(ch) : continue
+        if ch == '\\' {
+            result = 1
+            break
+        }
+        break
+    loop
+    return result
+
+#deffunc copy_with_edit str src_file_path, str dest_file_path
+    notesel buf
+    noteload src_file_path
+    file_line_num = noteinfo(0)
+    reading_index = 0
+    ignore_multiline_str = 0
+    ignore_multiline_inst = 0
+    repeat
+        notesel buf
+        ; if cnt >= noteinfo(0) : break
+        if cnt > file_line_num : break
+        noteget l, reading_index
+        reading_index++
+        if ignore_multiline_str == 0 && ignore_multiline_inst == 0{
+            if reading_index - 1 >= noteinfo(0) {
+                p = -1
+            } else {
+                p = reading_index - 1
+            }
+            now_line_num = cnt + 1
+            noteadd "__errfile@ = __file__ : __errline@ = " + now_line_num, p
+            reading_index++
+        }
+        ignore_multiline_inst = 0
+        // マルチライン文字列には挿入しない
+        if ignore_multiline_str == 0 && instr(l, 0, "{\"") != -1 && instr(l, 0, "\"}") == -1 {
+            ignore_multiline_str = 1
+        }
+        if ignore_multiline_str && instr(l, 0, "{\"") == -1 && instr(l, 0, "\"}") != -1 {
+            ignore_multiline_str = 0
+        }
+        if ignore_multiline_str == 0 && is_multi_line(l) {
+            ignore_multiline_inst = 1
+        }
+    loop
+    notesel buf
+    notesave dest_file_path
+    return
+
+#global
+
+#endif

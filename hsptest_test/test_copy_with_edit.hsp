@@ -1,0 +1,14 @@
+#include "append_data.hsp"
+#include "assertion.as"
+
+*test1
+    assertFalse is_multi_line("foo bar \\ ")
+    return
+
+*test2
+    assertFalse is_multi_line("abc\\def")
+    return
+
+*test3
+    copy_with_edit "data/appended_script", "../../tmp"
+    return

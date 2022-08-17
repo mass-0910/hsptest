@@ -1,0 +1,46 @@
+#include "append_data.hsp"
+#include "assertion.as"
+
+*test_char
+    assertTrue is_name_alphabet('a')
+    assertTrue is_name_alphabet('A')
+    assertTrue is_name_alphabet('Z')
+    assertTrue is_name_alphabet('0')
+    assertTrue is_name_alphabet('9')
+    assertTrue is_name_alphabet('_')
+    assertTrue is_name_alphabet('a')
+    assertTrue is_space(' ')
+    assertTrue is_space('\t')
+    return
+
+*test1
+    assertTrue is_entry_inst("    *label_Hogehoge    ")
+    return
+
+*test2
+    assertTrue is_entry_inst("  #deffunc func str aaa")
+    return
+
+*test3
+    assertTrue is_entry_inst("#defcfunc func str aaa")
+    return
+
+*test4
+    assertTrue is_entry_inst("#modfunc func str aaa")
+    return
+
+*test5
+    assertTrue is_entry_inst("#modcfunc func str aaa")
+    return
+
+*test6
+    assertTrue is_entry_inst("#modinit")
+    return
+
+*test7
+    assertTrue is_entry_inst("#modterm")
+    return
+
+*test8
+    assertFalse is_entry_inst("#defafunc func str aaa")
+    return
