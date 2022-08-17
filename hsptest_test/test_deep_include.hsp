@@ -1,3 +1,16 @@
-#include "include\\a\\module.as"
+#include "include\\a\\module1.as"
+#include "include\\a\\module2.as"
+#include "include\\module3.as"
+#include "assertion.as"
 
-func
+*test1
+    assertEqual func1(), 1
+    return
+
+*test2
+    assertEqual func2(), 2
+    return
+
+*test3
+    assertEqual func3(), 3
+    return

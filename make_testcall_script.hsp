@@ -11,9 +11,11 @@
 */
 #deffunc local make_folder_in_path str path, local parent
     parent = getpath(path, 32)
+    parent = strtrim(parent, 2, '\\')
+    parent = strtrim(parent, 2, '/')
     if parent == "" : return
     make_folder_in_path parent
-    mkdir parent
+    mkdir temp_test_env_dir + "\\" + parent
     return
 
 /*
@@ -90,17 +92,41 @@
     return temp_test_name
 
 /*
+渡したフォルダの中身を全て削除する
+引数
+    path_to_dir: 中身を空にしたいフォルダへのパス
+*/
+#deffunc local delete_all_file str path_to_dir, local now_cwd, local dirs, local dir_num, local files, local file_num, local name
+    // 指定したフォルダ内に移動
+    now_cwd = dirinfo(0)
+    chdir path_to_dir
+    // フォルダをまず削除
+    dirlist dirs, "*", 5
+    dir_num = stat
+    repeat dir_num
+        notesel dirs
+        noteget name, cnt
+        delete_all_file name
+        RemoveDirectory name
+    loop
+    // ファイルを削除
+    dirlist files, "*", 1
+    file_num = stat
+    repeat file_num
+        notesel files
+        noteget name, cnt
+        delete name
+    loop
+    // 元のフォルダに帰る
+    chdir now_cwd
+    return
+
+/*
 テストスクリプトおよびaxファイルを削除する
  */
 #deffunc delete_temp_test
-    dirlist tmp_files, "*.*",
-    file_num = stat
     chdir ".."
-    notesel tmp_files
-    repeat file_num
-        noteget delete_file_name, cnt
-        delete temp_test_env_dir + "\\" + delete_file_name
-    loop
+    delete_all_file temp_test_env_dir
     RemoveDirectory temp_test_env_dir
     return
 
