@@ -66,8 +66,8 @@ hsptestが実行終了すると、以下のような出力がされます。テ�
 HSP 3.6.0.7, hsptest 0.4
 test1@test_example.hsp: PASS
 test2@test_example.hsp: PASS
-test3@test_example.hsp: FAIL at line 22: Divided by 0
-======= 1 failed, 2 passed in 0.3 seconds =======
+test3@test_example.hsp: FAIL at line 22 of test_example.hsp: Divided by 0
+======= 1 failed, 2 passed in 0.27 seconds =======
 ```
 
 ## `assertion.as`の使い方
