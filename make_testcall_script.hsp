@@ -24,6 +24,7 @@
     noteload file_name
     file_line_num = noteinfo(0)
     repeat file_line_num
+        notesel test_script_buf
         noteget l, cnt
         if init {
             addinst_buf = "#include #addition #uselib #pack #epack"
@@ -53,7 +54,6 @@
                 if strsize != -1 : break
                 // コピーした後に更にincludeされるスクリプト内でincludeされるスクリプトを探す
                 bcopy copy_file_name, temp_test_env_dir + "\\" + copy_file_name
-                mes copy_file_name + " copied"
                 copy_included_test_file_to_temp_dir copy_file_name, 0
                 break
             }
