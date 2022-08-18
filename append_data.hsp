@@ -93,18 +93,18 @@
 #deffunc copy_with_edit str src_file_path, str dest_file_path
     notesel buf
     noteload src_file_path
-    file_line_num = noteinfo(0)
+    file_line_num = notemax
     reading_index = 0
     ignore_multiline_str = 0
     ignore_multiline_inst = 0
     repeat
         notesel buf
-        ; if cnt >= noteinfo(0) : break
+        ; if cnt >= notemax : break
         if cnt > file_line_num : break
         noteget l, reading_index
         reading_index++
         if ignore_multiline_str == 0 && ignore_multiline_inst == 0{
-            if reading_index - 1 >= noteinfo(0) {
+            if reading_index - 1 >= notemax {
                 p = -1
             } else {
                 p = reading_index - 1

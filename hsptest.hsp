@@ -2,6 +2,7 @@
 #packopt name "hsptest"
 #packopt orgpath 1
 #packopt version "VERSION"
+#include "hspdef.as"
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
@@ -17,10 +18,10 @@ test_pass = 0
 test_fail = 0
 
 // correct test code
-if dirinfo(4) != "" : chdir dirinfo(4)
+if dir_cmdline != "" : chdir dir_cmdline
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
-file_num = noteinfo(0)
+file_num = notemax
 
 // output first message
 hspver_str = strf("%4x", hspver)
@@ -59,7 +60,7 @@ repeat file_num
 
         // compile test
         hsc_ini temptest_path
-        hsc_compath dirinfo(1) + "\\common\\"
+        hsc_compath dir_exe + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
@@ -73,7 +74,7 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
+        hsp3cl_runtime = dir_exe + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime

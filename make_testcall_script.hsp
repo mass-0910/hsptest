@@ -36,7 +36,7 @@
 #deffunc local copy_included_test_file_to_temp_dir str file_name, int init, local test_script_buf, local file_line_num, local l, local addinst, local index, local copy_file_name
     notesel test_script_buf
     noteload file_name
-    file_line_num = noteinfo(0)
+    file_line_num = notemax
     repeat file_line_num
         notesel test_script_buf
         noteget l, cnt
@@ -62,7 +62,7 @@
                 exist copy_file_name
                 if strsize == -1 : break
                 // commonフォルダに存在する既存スクリプトの場合無視
-                exist dirinfo(1) + "\\common\\" + copy_file_name
+                exist dir_exe + "\\common\\" + copy_file_name
                 if strsize != -1 : break
                 // 既に一時フォルダに存在するとき無視
                 exist temp_test_env_dir + "\\" + copy_file_name
@@ -82,7 +82,7 @@
     sdim path_buf, path_buf_size + 1
     dirlist2r@ path_buf
     notesel path_buf
-    file_num = noteinfo(0)
+    file_num = notemax
     repeat file_num
         notesel path_buf
         noteget path, cnt
@@ -137,7 +137,7 @@
 */
 #deffunc local delete_all_file str path_to_dir, local now_cwd, local dirs, local dir_num, local files, local file_num, local name
     // 指定したフォルダ内に移動
-    now_cwd = dirinfo(0)
+    now_cwd = dir_cur
     chdir path_to_dir
     // フォルダをまず削除
     dirlist dirs, "*", 5
