@@ -2,7 +2,7 @@
 #include "assertion.as"
 
 *test1
-    assertFalse is_multi_line("foo bar \\ ")
+    assertTrue is_multi_line("foo bar \\ ")
     return
 
 *test2
