@@ -30,7 +30,7 @@ repeat 4
     if cnt == 3: mes ", ", 1 : break
     mes ".", 1
 loop
-mes "hsptest 0.4"
+mes "hsptest 0.5"
 
 start_time = timeGetTime()
 
