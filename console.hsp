@@ -40,7 +40,7 @@
     mes ""
     return
 
-#deffunc right_justified_mes str mes_str, int color_code
+#deffunc right_justified_mes str mes_str, int color_code, int newline
     cw = console_width()
     cx = console_x()
     if cw - cx - strlen(mes_str) + 1 > 0 {
@@ -48,7 +48,12 @@
             mes " ", 1
         loop
     }
-    color_mes mes_str, 0, color_code
+    if newline {
+        color_mes mes_str, 0, color_code
+    } else {
+        color_mes mes_str, 1, color_code
+        set_console_x cx
+    }
     return
 
 #defcfunc console_width
@@ -60,6 +65,16 @@
     dim csbi, 6
     GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
     return wpeek(csbi,4)
+
+#deffunc set_console_x int x
+    dim csbi, 6
+    pos_buf = 0
+    GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
+    y = wpeek(csbi,6)
+    wpoke pos_buf, 0, x
+    wpoke pos_buf, 2, y
+    SetConsoleCursorPosition stdout_handle, pos_buf
+    return
 
 #global
 
