@@ -1,0 +1,11 @@
+#include "argparse.hsp"
+#include "assertion.as"
+
+*test1
+    parse_init
+    parse_args "-s -l aaa -h"
+    assertEqual get_arg("--logfile"), "aaa"
+    assertTrue is_exist_arg("--stdout")
+    assertTrue is_exist_arg("--help")
+    assertFalse is_exist_arg("--verbose")
+    return

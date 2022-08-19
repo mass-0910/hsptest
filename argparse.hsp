@@ -1,0 +1,73 @@
+#ifndef parse_argument_hsp_included
+#define parse_argument_hsp_included
+
+#module
+
+#deffunc parse_init
+    sdim option_name_short, 64, 64
+    sdim option_name_long, 64, 64
+    dim option_exist, 64
+    dim option_arg_num, 64
+    sdim option_value, 64, 256
+    options = {"
+    -h --help 0
+    -v --verbose 0
+    -s --stdout 0
+    -l --logfile 1
+    "}
+    notesel options
+    repeat notemax
+        noteget l, cnt
+        split l, " ", option_name_short(cnt), option_name_long(cnt), num
+        option_arg_num(cnt) = int(num)
+        option_exist(cnt) = 0
+    loop
+    return
+
+#deffunc parse_args str cmdline
+    cmdline_buf = cmdline
+    split cmdline_buf, " ", splitted_cmdline
+    n = stat
+    repeat n
+        ccnt = cnt
+        repeat length(option_name_short)
+            if splitted_cmdline(ccnt) == option_name_short(cnt) || splitted_cmdline(ccnt) == option_name_long(cnt) {
+                if option_arg_num(cnt) {
+                    option_value(cnt) = ""
+                    cccnt = cnt
+                    repeat option_arg_num(cnt)
+                        option_value(cccnt) += splitted_cmdline(ccnt + cnt + 1)
+                    loop
+                    option_value(cnt) = strtrim(option_value(cnt))
+                    option_exist(cnt) = 1
+                } else {
+                    option_exist(cnt) = 1
+                }
+            }
+        loop
+    loop
+    return
+
+#defcfunc is_exist_arg str arg_name, local retval
+    retval = 0
+    repeat length(option_name_short)
+        if arg_name == option_name_short(cnt) || arg_name == option_name_long(cnt) {
+            retval = option_exist(cnt)
+            break
+        }
+    loop
+    return retval
+
+#defcfunc get_arg str arg_name, local retval
+    retval = ""
+    repeat length(option_name_short)
+        if arg_name == option_name_short(cnt) || arg_name == option_name_long(cnt) {
+            val = option_value(cnt)
+            break
+        }
+    loop
+    return retval = val
+
+#global
+
+#endif

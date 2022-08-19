@@ -6,6 +6,7 @@
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
+#include "argparse.hsp"
 #include "make_testcall_script.hsp"
 #include "result_format.as"
 #uselib "winmm.dll"
