@@ -3,19 +3,16 @@
 
 #module
 
-#deffunc parse_init
+#deffunc parse_init int argnum, str options
+    options_buf = options
+    arg_num = argnum
+    sdim argument_value, 256, argnum
     sdim option_name_short, 64, 64
     sdim option_name_long, 64, 64
     dim option_exist, 64
     dim option_arg_num, 64
-    sdim option_value, 64, 256
-    options = {"
-    -h --help 0
-    -v --verbose 0
-    -s --stdout 0
-    -l --logfile 1
-    "}
-    notesel options
+    sdim option_value, 64, 64
+    notesel options_buf
     repeat notemax
         noteget l, cnt
         split l, " ", option_name_short(cnt), option_name_long(cnt), num
@@ -24,31 +21,93 @@
     loop
     return
 
-#deffunc parse_args str cmdline
+#deffunc split_args var cmdline_buf, array splitted_cmdline, local element_buf, local write_index, local cmdline_index, local str_start
+    sdim element_buf, 256
+    str_start = 0
+    cmdline_index = 0
+    write_index = 0
+    repeat strlen(cmdline_buf)
+        ch = peek(cmdline_buf, cnt)
+        if ch == '"' || ch == '\'' {
+            if str_start == ch {
+                poke element_buf, write_index, 0
+                splitted_cmdline(cmdline_index) = element_buf
+                cmdline_index++
+                write_index = 0
+                str_start = 0
+                continue
+            } else : if str_start == 0 {
+                str_start = ch
+                continue
+            }
+        } else : if ch == ' ' {
+            if str_start == 0 {
+                if write_index != 0 {
+                    poke element_buf, write_index, 0
+                    splitted_cmdline(cmdline_index) = element_buf
+                    cmdline_index++
+                    write_index = 0
+                }
+                continue
+            }
+        }
+        poke element_buf, write_index, ch
+        write_index++
+    loop
+    if write_index != 0 {
+        poke element_buf, write_index, 0
+        splitted_cmdline(cmdline_index) = element_buf
+        cmdline_index++
+    }
+    return cmdline_index
+
+#deffunc parse_args str cmdline, local cmdline_buf
+    sdim splitted_cmdline, 256, 64
     cmdline_buf = cmdline
-    split cmdline_buf, " ", splitted_cmdline
-    n = stat
-    repeat n
-        ccnt = cnt
+    split_args cmdline_buf, splitted_cmdline
+    cmdline_num = stat
+    arg_index = 0
+    detected_args = 0
+    repeat cmdline_num
+        is_option = 0
         repeat length(option_name_short)
-            if splitted_cmdline(ccnt) == option_name_short(cnt) || splitted_cmdline(ccnt) == option_name_long(cnt) {
+            if splitted_cmdline(arg_index) == option_name_short(cnt) || splitted_cmdline(arg_index) == option_name_long(cnt) {
+                optname = splitted_cmdline(arg_index)
+                optargnum = option_arg_num(cnt)
                 if option_arg_num(cnt) {
                     option_value(cnt) = ""
                     cccnt = cnt
                     repeat option_arg_num(cnt)
-                        option_value(cccnt) += splitted_cmdline(ccnt + cnt + 1)
+                        arg_index++
+                        if arg_index >= cmdline_num {
+                            mes "hsptest: error: argument " + optname + " requires " + optargnum + " arguments"
+                            end -1
+                        }
+                        option_value(cccnt) += splitted_cmdline(arg_index) + " "
                     loop
                     option_value(cnt) = strtrim(option_value(cnt))
-                    option_exist(cnt) = 1
-                } else {
-                    option_exist(cnt) = 1
                 }
+                option_exist(cnt) = 1
+                is_option = 1
+                break
             }
         loop
+        if is_option == 0 {
+            if detected_args >= arg_num {
+                mes "hsptest: error: argument only " + arg_num + "required"
+                end -1
+            }
+            argument_value(detected_args) = splitted_cmdline(arg_index)
+            detected_args++
+        }
+        arg_index++
     loop
     return
 
-#defcfunc is_exist_arg str arg_name, local retval
+#defcfunc get_arg int arg
+    return argument_value(arg)
+
+#defcfunc is_exist_option str arg_name, local retval
     retval = 0
     repeat length(option_name_short)
         if arg_name == option_name_short(cnt) || arg_name == option_name_long(cnt) {
@@ -58,15 +117,15 @@
     loop
     return retval
 
-#defcfunc get_arg str arg_name, local retval
+#defcfunc get_option_arg str arg_name, local retval
     retval = ""
     repeat length(option_name_short)
         if arg_name == option_name_short(cnt) || arg_name == option_name_long(cnt) {
-            val = option_value(cnt)
+            retval = option_value(cnt)
             break
         }
     loop
-    return retval = val
+    return retval
 
 #global
 

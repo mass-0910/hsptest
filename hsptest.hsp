@@ -19,7 +19,15 @@ test_pass = 0
 test_fail = 0
 
 // correct test code
-if dir_cmdline != "" : chdir dir_cmdline
+options = {"
+-v --verbose 0
+-s --stdout 0
+-l --logfile 1
+-h --help 0
+"}
+parse_init 1, options
+parse_args dir_cmdline
+if get_arg(0) != "" : chdir get_arg(0)
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
 file_num = notemax

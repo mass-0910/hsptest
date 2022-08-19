@@ -1,11 +1,81 @@
 #include "argparse.hsp"
 #include "assertion.as"
 
+*init
+    options = {"
+    -h --help 0
+    -v --verbose 0
+    -s --stdout 0
+    -l --logfile 1
+    "}
+    return
+
 *test1
-    parse_init
-    parse_args "-s -l aaa -h"
-    assertEqual get_arg("--logfile"), "aaa"
-    assertTrue is_exist_arg("--stdout")
-    assertTrue is_exist_arg("--help")
-    assertFalse is_exist_arg("--verbose")
+    gosub *init
+    parse_init 1, options
+    parse_args "-s -l aaa -h aaaa"
+    assertEqual get_option_arg("--logfile"), "aaa"
+    assertTrue is_exist_option("--stdout")
+    assertFalse is_exist_option("--verbose")
+    assertTrue is_exist_option("--help")
+    assertEqual get_arg(0), "aaaa"
+    return
+
+*test2
+    gosub *init
+    parse_init 0, options
+    parse_args "-s -l \"ab c.log\" -h"
+    assertEqual get_option_arg("--logfile"), "ab c.log"
+    assertTrue is_exist_option("-l")
+    assertTrue is_exist_option("--stdout")
+    assertTrue is_exist_option("--help")
+    return
+
+*test3
+    gosub *init
+    parse_init 0, options
+    parse_args "-s -l 'ab c.log' -h"
+    assertEqual get_option_arg("--logfile"), "ab c.log"
+    assertTrue is_exist_option("--stdout")
+    assertTrue is_exist_option("--help")
+    return
+
+*test4
+    gosub *init
+    parse_init 0, options
+    parse_args "-s -l \"ab c.log' -h"
+    assertEqual get_option_arg("--logfile"), "ab c.log' -h"
+    assertTrue is_exist_option("--stdout")
+    assertFalse is_exist_option("--help")
+    return
+
+
+*test5
+    gosub *init
+    parse_init 0, options
+    parse_args "-s -h -l \"ab c.log\" "
+    assertEqual get_option_arg("--logfile"), "ab c.log", get_option_arg("--logfile")
+    assertTrue is_exist_option("-l")
+    assertTrue is_exist_option("--stdout")
+    assertTrue is_exist_option("--help")
+    return
+
+*test6
+    gosub *init
+    parse_init 4, options
+    sdim splitted_cmdline, 64, 64
+    cmdline = "aaa \'b  bb\' ccc  \"ddd\""
+    split_args cmdline, splitted_cmdline
+    assertEqual stat, 4
+    assertEqual splitted_cmdline(0), "aaa"
+    assertEqual splitted_cmdline(1), "b  bb"
+    assertEqual splitted_cmdline(2), "ccc"
+    assertEqual splitted_cmdline(3), "ddd", e
+    return
+
+*test7
+    gosub *init
+    parse_init 1, options
+    parse_args "-s -h"
+    assertEqual get_arg(0), ""
     return
