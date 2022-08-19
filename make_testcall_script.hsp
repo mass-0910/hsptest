@@ -1,7 +1,6 @@
 #ifndef make_testcall_script_hsp_included
 #define make_testcall_script_hsp_included
 
-#include "kernel32.as"
 #include "append_data.hsp"
 
 #module

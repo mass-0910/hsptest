@@ -1,0 +1,66 @@
+#ifndef console_hsp_included
+#define console_hsp_included
+
+#module
+
+#define global FOREGROUND_BLUE      0x0001 // text color contains blue.
+#define global FOREGROUND_GREEN     0x0002 // text color contains green.
+#define global FOREGROUND_RED       0x0004 // text color contains red.
+#define global FOREGROUND_WHITE     0x0007 // text color contains white.
+#define global FOREGROUND_INTENSITY 0x0008 // text color is intensified.
+#define global BACKGROUND_BLUE      0x0010 // background color contains blue.
+#define global BACKGROUND_GREEN     0x0020 // background color contains green.
+#define global BACKGROUND_RED       0x0040 // background color contains red.
+#define global BACKGROUND_INTENSITY 0x0080 // background color is intensified.
+
+#deffunc console_init
+    AllocConsole
+    stdout_handle = GetStdHandle(-11)
+    return
+
+#deffunc color_mes str mes_str, int option, int color_code
+    SetConsoleTextAttribute stdout_handle, color_code
+    mes mes_str, option
+    SetConsoleTextAttribute stdout_handle, FOREGROUND_WHITE
+    return
+
+#deffunc equal_rounded_mes str mes_str, int color_code
+    cw = console_width()
+    if int((cw - strlen(mes_str)) / 2) > 0 {
+        repeat int((cw - strlen(mes_str)) / 2)
+            color_mes "=", 1, color_code
+        loop
+    }
+    color_mes mes_str, 1, color_code
+    if int(cw - int((cw - strlen(mes_str)) / 2) - strlen(mes_str)) + 1 > 0 {
+        repeat int(cw - int((cw - strlen(mes_str)) / 2) - strlen(mes_str)) + 1
+            color_mes "=", 1, color_code
+        loop
+    }
+    mes ""
+    return
+
+#deffunc right_justified_mes str mes_str, int color_code
+    cw = console_width()
+    cx = console_x()
+    if cw - cx - strlen(mes_str) + 1 > 0 {
+        repeat cw - cx - strlen(mes_str) + 1
+            mes " ", 1
+        loop
+    }
+    color_mes mes_str, 0, color_code
+    return
+
+#defcfunc console_width
+    dim csbi, 6
+    GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
+    return wpeek(csbi, 14)
+
+#defcfunc console_x
+    dim csbi, 6
+    GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
+    return wpeek(csbi,4)
+
+#global
+
+#endif

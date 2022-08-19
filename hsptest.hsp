@@ -6,9 +6,11 @@
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
+#include "kernel32.as"
+#include "result_format.as"
 #include "argparse.hsp"
 #include "make_testcall_script.hsp"
-#include "result_format.as"
+#include "console.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
@@ -17,6 +19,9 @@ sdim ln, 20000
 
 test_pass = 0
 test_fail = 0
+
+// initialize console output
+console_init
 
 // correct test code
 options = {"
@@ -33,6 +38,7 @@ notesel testcodes
 file_num = notemax
 
 // output first message
+equal_rounded_mes " test session starts ", FOREGROUND_WHITE
 hspver_str = strf("%4x", hspver)
 mes "HSP ", 1
 repeat 4
@@ -41,6 +47,28 @@ repeat 4
     mes ".", 1
 loop
 mes "hsptest 0.5"
+
+// count test num
+all_test_num = 0
+repeat file_num
+    notesel testcodes
+    noteget file_name, cnt
+    if instr(file_name, 0, "test") == -1 : continue
+    notesel testcode_buf
+    noteload file_name
+    repeat
+        notesel testcode_buf
+        l = notefind("*test", 1)
+        if l == -1 : break
+        notedel l
+        all_test_num++
+    loop
+loop
+
+mes "collected " + all_test_num + " tests"
+mes ""
+
+test_num = 0
 
 start_time = timeGetTime()
 
@@ -99,13 +127,16 @@ repeat file_num
         stdout = label_name + ":" + stdout
 
         // output result
+        mes file_name + "::" + test_name + ": ", 1
         if result == "PASS" {
-            mes test_name + "@" + file_name + ":" + " PASS"
+            color_mes "PASSED", 1, FOREGROUND_GREEN | FOREGROUND_INTENSITY
             test_pass++
         } else {
-            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + " of " + errfile + ": " + errdetail
+            color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
             test_fail++
         }
+        test_num++
+        right_justified_mes "[" + strf("%3d", int((double(test_num) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN
 
         // delete temporary testcall script
         delete_temp_test
@@ -115,11 +146,11 @@ loop
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
 if test_pass == 0 && test_fail == 0 {
-    mes "======= no tests ran in " + spend_time + " seconds =========="
+    equal_rounded_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE
 } else : if test_fail == 0 {
-    mes "======= all " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+    equal_rounded_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN
 } else {
-    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+    equal_rounded_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED
 }
 
 end test_fail
