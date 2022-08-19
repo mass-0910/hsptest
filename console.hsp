@@ -24,17 +24,17 @@
     SetConsoleTextAttribute stdout_handle, FOREGROUND_WHITE
     return
 
-#deffunc equal_rounded_mes str mes_str, int color_code
+#deffunc centered_mes str mes_str, int color_code, str fill_char
     cw = console_width()
     if int((cw - strlen(mes_str)) / 2) > 0 {
         repeat int((cw - strlen(mes_str)) / 2)
-            color_mes "=", 1, color_code
+            color_mes fill_char, 1, color_code
         loop
     }
     color_mes mes_str, 1, color_code
     if int(cw - int((cw - strlen(mes_str)) / 2) - strlen(mes_str)) + 1 > 0 {
         repeat int(cw - int((cw - strlen(mes_str)) / 2) - strlen(mes_str)) + 1
-            color_mes "=", 1, color_code
+            color_mes fill_char, 1, color_code
         loop
     }
     mes ""

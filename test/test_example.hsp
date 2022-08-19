@@ -18,6 +18,8 @@
 
 ;テストサブルーチン
 *test3
+    mes "example"
+    mes "output"
     zero = 0
     divide_0 = 1 / zero ;0割りを発生させる
     return

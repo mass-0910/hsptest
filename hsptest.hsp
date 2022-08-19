@@ -14,8 +14,8 @@
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-sdim stdout, 20000
-sdim ln, 20000
+sdim stdout, 2000
+sdim ln, 2000
 
 test_pass = 0
 test_fail = 0
@@ -38,7 +38,7 @@ notesel testcodes
 file_num = notemax
 
 // output first message
-equal_rounded_mes " test session starts ", FOREGROUND_WHITE
+centered_mes " test session starts ", FOREGROUND_WHITE, "="
 hspver_str = strf("%4x", hspver)
 mes "HSP ", 1
 repeat 4
@@ -64,6 +64,11 @@ repeat file_num
         all_test_num++
     loop
 loop
+
+sdim stdout_buf, 2000, all_test_num
+sdim stdout_file_name, 256, all_test_num
+sdim stdout_test_name, 64, all_test_num
+dim stdout_result, all_test_num
 
 mes "collected " + all_test_num + " tests"
 mes ""
@@ -123,10 +128,11 @@ repeat file_num
             wait 1
         loop
 
-        // correct result
+        // collect result
         parse_result_format stdout, result, errline, errfile, errdetail, stdout
-        strrep stdout, "\n", "\n" + label_name + ":"
-        stdout = label_name + ":" + stdout
+        stdout_buf(test_num) = stdout
+        stdout_file_name(test_num) = file_name
+        stdout_test_name(test_num) = test_name
 
         // output result
         test_num++
@@ -150,6 +156,7 @@ repeat file_num
             test_pass++
         } else {
             test_fail++
+            stdout_result(test_num - 1) = 1
         }
 
         // delete temporary testcall script
@@ -158,15 +165,25 @@ repeat file_num
     if is_exist_option("--verbose") == 0 : mes ""
 loop
 
+if is_exist_option("--stdout") {
+    repeat all_test_num
+        if stdout_result(cnt) {
+            centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
+            mes stdout_buf(cnt)
+        }
+    loop
+    centered_mes "", FOREGROUND_WHITE, "-"
+}
+
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
 mes ""
 if test_pass == 0 && test_fail == 0 {
-    equal_rounded_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE
+    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
 } else : if test_fail == 0 {
-    equal_rounded_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN
+    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
 } else {
-    equal_rounded_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED
+    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
 }
 
 end test_fail
