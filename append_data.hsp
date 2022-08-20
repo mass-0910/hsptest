@@ -110,7 +110,7 @@
                 p = reading_index - 1
             }
             now_line_num = cnt + 1
-            noteadd "__errfile@ = __file__ : __errline@ = " + now_line_num, p
+            noteadd "__errfile@(sublev) = __file__ : __errline@(sublev) = " + now_line_num + " : __sublev@ = sublev", p
             reading_index++
         }
         ignore_multiline_inst = 0

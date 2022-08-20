@@ -187,11 +187,19 @@ repeat file_num
 loop
 
 if is_exist_option("--stdout") {
+    stdout_exist = 0
     repeat all_test_num
-        centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
-        mes stdout_buf(cnt)
+        if stdout_buf(cnt) != "" {
+            stdout_exist = 1
+            centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
+            mes stdout_buf(cnt)
+        }
     loop
-    centered_mes "", FOREGROUND_WHITE, "-"
+    if stdout_exist {
+        centered_mes "", FOREGROUND_WHITE, "-"
+    } else {
+        centered_mes " no stdout captured ", FOREGROUND_WHITE, "-"
+    }
 }
 
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)

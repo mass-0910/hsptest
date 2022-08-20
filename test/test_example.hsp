@@ -1,4 +1,5 @@
 #include "assertion.as" ; 各種assertionをincludeする
+#include "ext.as"
 
 ;ラベル名は*testXXX...のような名前にしてください
 ;テストサブルーチン
@@ -21,5 +22,6 @@
     mes "example"
     mes "output"
     zero = 0
+    gosub *subroutine
     divide_0 = 1 / zero ;0割りを発生させる
     return
