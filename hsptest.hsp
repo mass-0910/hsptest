@@ -14,6 +14,8 @@
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
+version = "0.5"
+
 sdim stdout, 2000
 sdim ln, 2000
 
@@ -32,6 +34,24 @@ options = {"
 "}
 parse_init 1, options
 parse_args dir_cmdline
+
+// show usage
+if is_exist_option("--help") {
+    mes "usage: hsptest [options] [path_to_test_dir]"
+    mes ""
+    mes "arguments:"
+    mes "  path_to_test_dir       the path to the directory containing the files you want to run the tests"
+    mes ""
+    mes "options:"
+    mes "  -v, --verbose          print the result for each test"
+    mes "  -s, --stdout           display captured stdout while test"
+    mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
+    mes "  -h, --help             show this help message"
+    end
+}
+
+// change cwd to test directory
+first_cwd = dir_cur
 if get_arg(0) != "" : chdir get_arg(0)
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
@@ -40,13 +60,14 @@ file_num = notemax
 // output first message
 centered_mes " test session starts ", FOREGROUND_WHITE, "="
 hspver_str = strf("%4x", hspver)
-mes "HSP ", 1
+tmpstr = ""
 repeat 4
-    mes strmid(hspver_str, cnt, 1), 1
-    if cnt == 3: mes ", ", 1 : break
-    mes ".", 1
+    tmpstr += strmid(hspver_str, cnt, 1)
+    if cnt == 3 : break
+    tmpstr += "."
 loop
-mes "hsptest 0.5"
+hspver_str = tmpstr
+mes "HSP " + hspver_str + ", hsptest " + version
 
 // count test num
 all_test_num = 0
@@ -184,6 +205,38 @@ if test_pass == 0 && test_fail == 0 {
     centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
 } else {
     centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+}
+
+if is_exist_option("--logfile") {
+    logfile_path = get_option_arg("--logfile")
+    logfile_buf = "ran on HSP " + hspver_str + ", hsptest " + version + "\n\n"
+    logfile_buf += "test_dir: " + dir_cur + "\n\n"
+    logfile_buf += "[RESULTS]\n"
+    repeat all_test_num
+        if stdout_result(cnt) {
+            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": FAILED\n"
+        } else {
+            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": PASSED\n"
+        }
+    loop
+    logfile_buf += "\n"
+    logfile_buf += "[STDOUT OUTPUTS]\n"
+    stdout_exist = 0
+    repeat all_test_num
+        stdout_exist = 1
+        stdout_log_header = stdout_file_name(cnt) + "::" + stdout_test_name(cnt)
+        logfile_buf += stdout_log_header
+        repeat 70 - strlen(stdout_log_header)
+            logfile_buf += "-"
+        loop
+        logfile_buf += "\n"
+        logfile_buf += stdout_buf(cnt)
+    loop
+    if stdout_exist : logfile_buf += "----------------------------------------------------------------------"
+    notesel logfile_buf
+    chdir first_cwd
+    notesave logfile_path
+    mes "output the log file to " + dir_cur + "\\" + logfile_path
 }
 
 end test_fail
