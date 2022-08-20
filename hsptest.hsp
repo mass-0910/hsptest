@@ -188,10 +188,8 @@ loop
 
 if is_exist_option("--stdout") {
     repeat all_test_num
-        if stdout_result(cnt) {
-            centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
-            mes stdout_buf(cnt)
-        }
+        centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
+        mes stdout_buf(cnt)
     loop
     centered_mes "", FOREGROUND_WHITE, "-"
 }
