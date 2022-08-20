@@ -37,9 +37,9 @@ hsptestを実行する際に以下のオプションを指定できます。
 |---|---|---|
 |`-v`, `--verbose`||テスト結果ごとに結果を出力します|
 |`-h`, `--help`||ヘルプを表示します|
-|`-s`, `--stdout`||HSPランタイムからの標準出力を表示します|
-|`-l`, `--logfile`|p1|p1で指定したファイルにテストログを出力します|
-|`-j`, `--junitxml`|p1|p1で指定したファイルにJUnit形式のログを出力します(未実装)|
+|`-s`, `--stdout`||テスト実行中にHSPランタイムから出力された文字列を表示します|
+|`-l`, `--logfile`|LOGFILE|LOGFILEで指定したファイルにテストログを出力します|
+<!-- |`-j`, `--junitxml`|p1|p1で指定したファイルにJUnit形式のログを出力します(未実装)| -->
 
 
 ## テストスクリプトの書き方
@@ -74,13 +74,25 @@ hsptestで実行されるテストは、テスト一つに対して一つのサ�
 
 テストごとにhsp3clランタイムのインスタンスが起動するため、他のテストサブルーチンで発生した変数代入やエラーなどは現在実行してるテストサブルーチンには影響しません。テストサブルーチン内でなにかのエラーが発生した場合、またはassertionが失敗したとき、そのテストは失敗となります。
 
-hsptestが実行終了すると、以下のような出力がされます。テストサブルーチンのラベル名、テスト結果、エラー行数、エラーの種類、pass/failの数、テストに掛かった時間が表示されます。
+
+## hsptestの出力
+
+hsptestが実行終了すると、以下のような出力がされます。
 ```
-HSP 3.6.0.7, hsptest 0.4
-test1@test_example.hsp: PASS
-test2@test_example.hsp: PASS
-test3@test_example.hsp: FAIL at line 22 of test_example.hsp: Divided by 0
-======= 1 failed, 2 passed in 0.27 seconds =======
+hsptest test
+```
+![image](https://user-images.githubusercontent.com/53329734/185728062-e691c608-75f7-492d-ad7e-7c7bf10cb797.png)
+
+実行の際に`-v`オプションを追加すると、それぞれのテストの結果と、テスト失敗の原因が出力されます。
+```
+hsptest -v test
+```
+![image](https://user-images.githubusercontent.com/53329734/185728084-efd6a2d4-ec9c-4412-85f9-e24f97f96210.png)
+
+さらに、`-l LOGFILE`オプション（`LOGFILE`は出力するログファイルへのパス）を指定すると、より詳細なログデータがファイルに出力されます
+
+```
+hsptest -l hogehoge.log test
 ```
 
 ## `assertion.as`の使い方
