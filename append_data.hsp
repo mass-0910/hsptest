@@ -93,24 +93,24 @@
 #deffunc copy_with_edit str src_file_path, str dest_file_path
     notesel buf
     noteload src_file_path
-    file_line_num = noteinfo(0)
+    file_line_num = notemax
     reading_index = 0
     ignore_multiline_str = 0
     ignore_multiline_inst = 0
     repeat
         notesel buf
-        ; if cnt >= noteinfo(0) : break
+        ; if cnt >= notemax : break
         if cnt > file_line_num : break
         noteget l, reading_index
         reading_index++
         if ignore_multiline_str == 0 && ignore_multiline_inst == 0{
-            if reading_index - 1 >= noteinfo(0) {
+            if reading_index - 1 >= notemax {
                 p = -1
             } else {
                 p = reading_index - 1
             }
             now_line_num = cnt + 1
-            noteadd "__errfile@ = __file__ : __errline@ = " + now_line_num, p
+            noteadd "__errfile@(sublev) = __file__ : __errline@(sublev) = " + now_line_num + " : __sublev@ = sublev", p
             reading_index++
         }
         ignore_multiline_inst = 0

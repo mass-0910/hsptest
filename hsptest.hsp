@@ -2,35 +2,99 @@
 #packopt name "hsptest"
 #packopt orgpath 1
 #packopt version "VERSION"
+#include "hspdef.as"
 #include "exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
-#include "make_testcall_script.hsp"
+#include "kernel32.as"
 #include "result_format.as"
+#include "argparse.hsp"
+#include "make_testcall_script.hsp"
+#include "console.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-sdim stdout, 20000
-sdim ln, 20000
+version = "0.5"
+
+sdim stdout, 2000
+sdim ln, 2000
 
 test_pass = 0
 test_fail = 0
 
+// initialize console output
+console_init
+
 // correct test code
-if dirinfo(4) != "" : chdir dirinfo(4)
+options = {"
+-v --verbose 0
+-s --stdout 0
+-l --logfile 1
+-h --help 0
+"}
+parse_init 1, options
+parse_args dir_cmdline
+
+// show usage
+if is_exist_option("--help") {
+    mes "usage: hsptest [options] [path_to_test_dir]"
+    mes ""
+    mes "arguments:"
+    mes "  path_to_test_dir       the path to the directory containing the files you want to run the tests"
+    mes ""
+    mes "options:"
+    mes "  -v, --verbose          print the result for each test"
+    mes "  -s, --stdout           display captured stdout while test"
+    mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
+    mes "  -h, --help             show this help message"
+    end
+}
+
+// change cwd to test directory
+first_cwd = dir_cur
+if get_arg(0) != "" : chdir get_arg(0)
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
-file_num = noteinfo(0)
+file_num = notemax
 
 // output first message
+centered_mes " test session starts ", FOREGROUND_WHITE, "="
 hspver_str = strf("%4x", hspver)
-mes "HSP ", 1
+tmpstr = ""
 repeat 4
-    mes strmid(hspver_str, cnt, 1), 1
-    if cnt == 3: mes ", ", 1 : break
-    mes ".", 1
+    tmpstr += strmid(hspver_str, cnt, 1)
+    if cnt == 3 : break
+    tmpstr += "."
 loop
-mes "hsptest 0.4"
+hspver_str = tmpstr
+mes "HSP " + hspver_str + ", hsptest " + version
+
+// count test num
+all_test_num = 0
+repeat file_num
+    notesel testcodes
+    noteget file_name, cnt
+    if instr(file_name, 0, "test") == -1 : continue
+    notesel testcode_buf
+    noteload file_name
+    repeat
+        notesel testcode_buf
+        l = notefind("*test", 1)
+        if l == -1 : break
+        notedel l
+        all_test_num++
+    loop
+loop
+
+sdim stdout_buf, 2000, all_test_num
+sdim stdout_file_name, 256, all_test_num
+sdim stdout_test_name, 64, all_test_num
+dim stdout_result, all_test_num
+
+mes "collected " + all_test_num + " tests"
+mes ""
+
+test_num = 0
 
 start_time = timeGetTime()
 
@@ -43,6 +107,8 @@ repeat file_num
 
     notesel testcode_buf
     noteload file_name
+
+    if is_exist_option("--verbose") == 0 : mes file_name + " ", 1
 
     repeat
 
@@ -59,7 +125,7 @@ repeat file_num
 
         // compile test
         hsc_ini temptest_path
-        hsc_compath dirinfo(1) + "\\common\\"
+        hsc_compath dir_exe + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
@@ -73,7 +139,7 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dirinfo(1) + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
+        hsp3cl_runtime = dir_exe + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
@@ -83,33 +149,100 @@ repeat file_num
             wait 1
         loop
 
-        // correct result
+        // collect result
         parse_result_format stdout, result, errline, errfile, errdetail, stdout
-        strrep stdout, "\n", "\n" + label_name + ":"
-        stdout = label_name + ":" + stdout
+        stdout_buf(test_num) = stdout
+        stdout_file_name(test_num) = file_name
+        stdout_test_name(test_num) = test_name
 
         // output result
+        test_num++
+        if is_exist_option("--verbose") {
+            mes file_name + "::" + test_name + ": ", 1
+            if result == "PASS" {
+                color_mes "PASSED", 1, FOREGROUND_GREEN | FOREGROUND_INTENSITY
+            } else {
+                color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+            }
+            right_justified_mes "[" + strf("%3d", int((double(test_num) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 1
+        } else {
+            if result == "PASS" {
+                color_mes ".", 1, FOREGROUND_GREEN
+            } else {
+                color_mes "F", 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+            }
+            right_justified_mes "[" + strf("%3d", int((double(test_num) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 0
+        }
         if result == "PASS" {
-            mes test_name + "@" + file_name + ":" + " PASS"
             test_pass++
         } else {
-            mes test_name + "@" + file_name + ":" + " FAIL at line " + errline + " of " + errfile + ": " + errdetail
             test_fail++
+            stdout_result(test_num - 1) = 1
         }
 
         // delete temporary testcall script
         delete_temp_test
     loop
+    if is_exist_option("--verbose") == 0 : mes ""
 loop
+
+if is_exist_option("--stdout") {
+    stdout_exist = 0
+    repeat all_test_num
+        if stdout_buf(cnt) != "" {
+            stdout_exist = 1
+            centered_mes " Captured stdout call in " + stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + " ", FOREGROUND_WHITE, "-"
+            mes stdout_buf(cnt)
+        }
+    loop
+    if stdout_exist {
+        centered_mes "", FOREGROUND_WHITE, "-"
+    } else {
+        centered_mes " no stdout captured ", FOREGROUND_WHITE, "-"
+    }
+}
 
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
+mes ""
 if test_pass == 0 && test_fail == 0 {
-    mes "======= no tests ran in " + spend_time + " seconds =========="
+    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
 } else : if test_fail == 0 {
-    mes "======= all " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
 } else {
-    mes "======= " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ======="
+    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+}
+
+if is_exist_option("--logfile") {
+    logfile_path = get_option_arg("--logfile")
+    logfile_buf = "ran on HSP " + hspver_str + ", hsptest " + version + "\n\n"
+    logfile_buf += "test_dir: " + dir_cur + "\n\n"
+    logfile_buf += "[RESULTS]\n"
+    repeat all_test_num
+        if stdout_result(cnt) {
+            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": FAILED\n"
+        } else {
+            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": PASSED\n"
+        }
+    loop
+    logfile_buf += "\n"
+    logfile_buf += "[STDOUT OUTPUTS]\n"
+    stdout_exist = 0
+    repeat all_test_num
+        stdout_exist = 1
+        stdout_log_header = stdout_file_name(cnt) + "::" + stdout_test_name(cnt)
+        logfile_buf += stdout_log_header
+        repeat 70 - strlen(stdout_log_header)
+            logfile_buf += "-"
+        loop
+        logfile_buf += "\n"
+        logfile_buf += stdout_buf(cnt)
+    loop
+    if stdout_exist : logfile_buf += "----------------------------------------------------------------------"
+    notesel logfile_buf
+    chdir first_cwd
+    notesave logfile_path
+    mes "output the log file to " + dir_cur + "\\" + logfile_path
 }
 
 end test_fail

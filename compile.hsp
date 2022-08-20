@@ -4,6 +4,7 @@
 #packopt name "compile"
 #packopt orgpath 0
 #packopt version "VERSION"
+#include "hspdef.as"
 #include "hspcmp.as"
 
 *init
@@ -29,7 +30,7 @@
 
 	mes "Make .exe file..."
     mes srcname
-	hsc3_make dirinfo(1)+"\\"+srcname+".dpm",1
+	hsc3_make dir_exe+"\\"+srcname+".dpm",1
 
 	mes "Done."
     end 0
