@@ -1,0 +1,52 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: hsptest_test以下を全てテスト
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: cache HSP3.6
+        id: cache-hsp36
+        uses: actions/cache@v3
+        with:
+          path: C:/hsp36
+          key: ${{ runner.os }}-hsp36
+          restore-keys: |
+            ${{ runner.os }}-hsp36
+
+      - name: download HSP3.6
+        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
+        uses: robinraju/release-downloader@v1.4
+        with:
+          repository: "onitama/OpenHSP"
+          tag: "v3.6"
+          fileName: "hsp36en.zip"
+
+      - name: unzip hsp36en.zip
+        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
+        run: 7z x hsp36en.zip -oC:/
+
+      - name: make test directory
+        shell: pwsh
+        run: |
+          cp -Force -Recurse common C:/hsp36
+          C:/hsp36/hspcmp.exe -d -o"hsptest.ax" --compath="C:/hsp36/common" ./hsptest.hsp
+          mkdir hsptest_test/tmpenv
+          cp *.hsp hsptest_test/tmpenv
+          cp hsptest_test/*.hsp hsptest_test/tmpenv
+          cp -Recurse hsptest_test/include hsptest_test/tmpenv/include
+          cp -Recurse hsptest_test/data hsptest_test/tmpenv/data
+          rm hsptest_test/tmpenv/hsptest.hsp
+          rm hsptest_test/tmpenv/make_testcall_script.hsp
+
+      - name: test
+        shell: pwsh
+        run: |
+          C:/hsp36/hsp3cl.exe hsptest.ax -v -s hsptest_test/tmpenv
+          rm -Recurse hsptest_test/tmpenv
