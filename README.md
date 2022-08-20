@@ -1,5 +1,7 @@
 # hsptest - HSP3スクリプトでテストを書くためのフレームワーク
 
+[![test](https://github.com/mass-0910/hsptest/actions/workflows/test.yml/badge.svg)](https://github.com/mass-0910/hsptest/actions/workflows/test.yml)
+
 HSP3言語で書かれたプログラムをテストするためのフレームワークです。pytestのような使い心地を目指しています。現在開発途中です。
 
 ## インストール
