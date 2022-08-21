@@ -12,8 +12,7 @@
 
 *test1
     gosub *init
-    parse_init 1, options
-    parse_args "-s -l aaa -h aaaa"
+    parse_args 1, options, "-s -l aaa -h aaaa"
     assertEqual get_option_arg("--logfile"), "aaa"
     assertTrue is_exist_option("--stdout")
     assertFalse is_exist_option("--verbose")
@@ -23,8 +22,7 @@
 
 *test2
     gosub *init
-    parse_init 0, options
-    parse_args "-s -l \"ab c.log\" -h"
+    parse_args 0, options, "-s -l \"ab c.log\" -h"
     assertEqual get_option_arg("--logfile"), "ab c.log"
     assertTrue is_exist_option("-l")
     assertTrue is_exist_option("--stdout")
@@ -33,8 +31,7 @@
 
 *test3
     gosub *init
-    parse_init 0, options
-    parse_args "-s -l 'ab c.log' -h"
+    parse_args 0, options, "-s -l 'ab c.log' -h"
     assertEqual get_option_arg("--logfile"), "ab c.log"
     assertTrue is_exist_option("--stdout")
     assertTrue is_exist_option("--help")
@@ -42,8 +39,7 @@
 
 *test4
     gosub *init
-    parse_init 0, options
-    parse_args "-s -l \"ab c.log' -h"
+    parse_args 0, options, "-s -l \"ab c.log' -h"
     assertEqual get_option_arg("--logfile"), "ab c.log' -h"
     assertTrue is_exist_option("--stdout")
     assertFalse is_exist_option("--help")
@@ -52,8 +48,7 @@
 
 *test5
     gosub *init
-    parse_init 0, options
-    parse_args "-s -h -l \"ab c.log\" "
+    parse_args 0, options, "-s -h -l \"ab c.log\" "
     assertEqual get_option_arg("--logfile"), "ab c.log", get_option_arg("--logfile")
     assertTrue is_exist_option("-l")
     assertTrue is_exist_option("--stdout")
@@ -62,7 +57,6 @@
 
 *test6
     gosub *init
-    parse_init 4, options
     sdim splitted_cmdline, 64, 64
     cmdline = "aaa \'b  bb\' ccc  \"ddd\""
     split_args cmdline, splitted_cmdline
@@ -75,7 +69,6 @@
 
 *test7
     gosub *init
-    parse_init 1, options
-    parse_args "-s -h"
+    parse_args 1, options, "-s -h"
     assertEqual get_arg(0), ""
     return

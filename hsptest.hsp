@@ -32,8 +32,7 @@ options = {"
 -l --logfile 1
 -h --help 0
 "}
-parse_init 1, options
-parse_args dir_cmdline
+parse_args 1, options, dir_cmdline
 
 // show usage
 if is_exist_option("--help") {
