@@ -1,0 +1,102 @@
+#ifndef logfile_hsp_included
+#define logfile_hsp_included
+
+#module
+
+#deffunc init_logfile_module str hspver_str, str hsptest_version, str testdir_path
+    result_logfile_buf = "[RESULTS]\n"
+    detail_logfile_buf = "[FAILED TEST DETAILS]\n"
+    stdout_logfile_buf = "[CAPTURED STDOUT]\n"
+    hspver_str_ = hspver_str
+    hsptest_version_ = hsptest_version
+    testdir_path_ = testdir_path
+    return
+
+#defcfunc local get_log_header str log_header, str separator, local buf
+    buf = ""
+    repeat (100 - strlen(log_header)) / 2
+        buf += separator
+    loop
+    buf += log_header
+    repeat (100 - strlen(log_header)) / 2 + (100 - strlen(log_header)) \ 2
+        buf += separator
+    loop
+    return buf
+
+#deffunc append_result_log str file_name, str test_name, int is_pass
+    if is_pass {
+        result_logfile_buf += file_name + "::" + test_name + ": PASSED\n"
+    } else {
+        result_logfile_buf += file_name + "::" + test_name + ": FAILED\n"
+    }
+    return
+
+#deffunc append_stdout_log str file_name, str test_name, str stdout
+    stdout_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
+    stdout_logfile_buf += stdout
+    return
+
+#deffunc append_detail_log str file_name, str test_name, str error_file, int error_line, str error_detail, array callstack
+    detail_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
+    detail_logfile_buf += "FAILED at file \"" + error_file + "\", line " + error_line + " : " + error_detail + "\n"
+    exist error_file
+    if strsize != -1 {
+        notesel file_buf
+        noteload error_file
+        repeat 6
+            get_line = error_line + cnt - 4
+            if get_line < 0 || get_line >= notemax : continue
+            noteget line_buf, get_line
+            if cnt == 3 {
+                detail_logfile_buf += strf("%5d", get_line + 1) + "|" + line_buf + " <--- ///// " + error_detail + " /////\n"
+            } else {
+                detail_logfile_buf += strf("%5d", get_line + 1) + "|" + line_buf + "\n"
+            }
+        loop
+    } else {
+        detail_logfile_buf += error_detail
+    }
+    callstack_str = ""
+    callstack_exist = 0
+    repeat length(callstack)
+        if callstack(cnt + 1) == "" : break
+        split callstack(cnt), " ", f, l
+        callstack_str = "File \"" + f + "\", line " + l + "\n" + callstack_str
+        exist f
+        if strsize != -1 {
+            notesel b
+            noteload f
+            noteget lb, int(l) - 1
+            lb = strtrim(lb, , ' ')
+            lb = strtrim(lb, , '\t')
+            callstack_str += "  " + lb + "\n"
+        } else {
+            callstack_str += "  ** File" + f + " not found **\n"
+        }
+        callstack_exist = 1
+    loop
+    if callstack_exist {
+        detail_logfile_buf += get_log_header(" call stack ", "-") + "\n"
+        detail_logfile_buf += callstack_str
+    }
+    return
+
+#defcfunc get_logfile_str local buf
+    buf = "ran on HSP " + hspver_str_ + ", hsptest " + hsptest_version_ + "\n\n"
+    buf += "test_dir: " + testdir_path_ + "\n\n\n"
+    buf += result_logfile_buf + "\n\n"
+    buf += detail_logfile_buf
+    buf += get_log_header("", "=") + "\n\n\n"
+    buf += stdout_logfile_buf
+    buf += get_log_header("", "=")
+    return buf
+
+#deffunc make_logfile str logfile_path, local buf
+    buf = get_logfile_str()
+    notesel buf
+    notesave logfile_path
+    return
+
+#global
+
+#endif

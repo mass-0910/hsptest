@@ -3,15 +3,10 @@
 
 *test1
     stdout = get_pass_result_format()
-    parse_result_format stdout, result, error_line, error_file, error_message, dummy
-    assertEqual result, "PASS"
+    assertEqual stdout, "&RESULT&{PASS;0;#;#}"
     return
 
 *test2
     stdout = get_fail_result_format(10, "hogehoge.hsp", "foo")
-    parse_result_format stdout, result, error_line, error_file, error_message, dummy
-    assertEqual result, "FAIL"
-    assertEqual error_line, 10
-    assertEqual error_file, "hogehoge.hsp"
-    assertEqual error_message, "foo"
+    assertEqual stdout, "&RESULT&{FAIL;10;hogehoge.hsp;foo}"
     return

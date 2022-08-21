@@ -7,14 +7,17 @@
 #include "hspext.as"
 #include "hspcmp.as"
 #include "kernel32.as"
+#include "mod_regexp.as"
 #include "result_format.as"
 #include "argparse.hsp"
 #include "make_testcall_script.hsp"
 #include "console.hsp"
+#include "logfile.hsp"
+#include "parse_result.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-version = "0.5"
+version = "0.6"
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -88,7 +91,11 @@ loop
 sdim stdout_buf, 2000, all_test_num
 sdim stdout_file_name, 256, all_test_num
 sdim stdout_test_name, 64, all_test_num
+sdim error_file_buf, 64, all_test_num
+sdim error_detail_buf, 64, all_test_num
+dim error_line_buf, all_test_num
 dim stdout_result, all_test_num
+sdim callstack_buf, 64, 1024, all_test_num
 
 mes "collected " + all_test_num + " tests"
 mes ""
@@ -149,10 +156,18 @@ repeat file_num
         loop
 
         // collect result
-        parse_result_format stdout, result, errline, errfile, errdetail, stdout
+        sdim callstack, 64, 1024
+        parse_result_format stdout, result, errline, errfile, errdetail, stdout, callstack
         stdout_buf(test_num) = stdout
         stdout_file_name(test_num) = file_name
         stdout_test_name(test_num) = test_name
+        error_file_buf(test_num) = errfile
+        error_line_buf(test_num) = int(errline)
+        error_detail_buf(test_num) = errdetail
+        repeat 1024
+            if callstack(cnt) == "" : break
+            callstack_buf(cnt, test_num) = callstack(cnt)
+        loop
 
         // output result
         test_num++
@@ -213,34 +228,21 @@ if test_pass == 0 && test_fail == 0 {
 }
 
 if is_exist_option("--logfile") {
+    init_logfile_module hspver_str, version, dir_cur
     logfile_path = get_option_arg("--logfile")
-    logfile_buf = "ran on HSP " + hspver_str + ", hsptest " + version + "\n\n"
-    logfile_buf += "test_dir: " + dir_cur + "\n\n"
-    logfile_buf += "[RESULTS]\n"
     repeat all_test_num
-        if stdout_result(cnt) {
-            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": FAILED\n"
-        } else {
-            logfile_buf += stdout_file_name(cnt) + "::" + stdout_test_name(cnt) + ": PASSED\n"
-        }
-    loop
-    logfile_buf += "\n"
-    logfile_buf += "[STDOUT OUTPUTS]\n"
-    stdout_exist = 0
-    repeat all_test_num
-        stdout_exist = 1
-        stdout_log_header = stdout_file_name(cnt) + "::" + stdout_test_name(cnt)
-        logfile_buf += stdout_log_header
-        repeat 70 - strlen(stdout_log_header)
-            logfile_buf += "-"
+        append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt) == 0
+        if stdout_buf(cnt) != "" : append_stdout_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_buf(cnt)
+        sdim callstack, 64, 1024
+        ccnt = cnt
+        repeat 1024
+            if callstack_buf(cnt, ccnt) == "" : break
+            callstack(cnt) = callstack_buf(cnt, ccnt)
         loop
-        logfile_buf += "\n"
-        logfile_buf += stdout_buf(cnt)
+        if stdout_result(cnt) : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
     loop
-    if stdout_exist : logfile_buf += "----------------------------------------------------------------------"
-    notesel logfile_buf
     chdir first_cwd
-    notesave logfile_path
+    make_logfile logfile_path
     mes "output the log file to " + dir_cur + "\\" + logfile_path
 }
 

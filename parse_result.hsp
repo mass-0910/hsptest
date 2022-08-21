@@ -1,0 +1,44 @@
+#ifndef parse_result_hsp_included
+#define parse_result_hsp_included
+
+#module
+
+/*
+stdoutから結果をパースする
+引数
+    stdout: hspランタイムから出力された文字列
+    result: 結果("PASS"または"FAIL")を格納する変数
+    error_line: エラーが発生した行数を格納する変数
+    error_message: エラーメッセージを格納する変数
+    removed_stdout: 特殊フォーマット文字列を全て取り除いた標準出力が格納される変数
+*/
+#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, var removed_stdout, array callstack
+    buf = stdout
+    result_pattern = "&RESULT&\\{(PASS|FAIL);([0-9]+);([^;]+);(.+)\\}\n"
+    callstack_pattern = "&CALLSTACK&\\{([^;]+);([0-9]+);([0-9]+)\\}\n"
+    matches result_match, stdout, result_pattern, 1, 1, 0
+    matched_num = stat
+    buf = replace(buf, result_pattern, "", 1)
+    if matched_num {
+        result = result_match(0, 1)
+        error_line = result_match(0, 2)
+        error_file = result_match(0, 3)
+        error_message = result_match(0, 4)
+    } else {
+        result = "FAIL"
+        error_line = -1
+        error_file = "?"
+        error_message = "crash!!!"
+    }
+    matches callstack_match, stdout, callstack_pattern, 1, 0, 0
+    matched_num = stat
+    buf = replace(buf, callstack_pattern, "", 1)
+    repeat matched_num
+        callstack(int(callstack_match(cnt, 3))) = callstack_match(cnt, 1) + " " + callstack_match(cnt, 2)
+    loop
+    removed_stdout = buf
+    return
+
+#global
+
+#endif
