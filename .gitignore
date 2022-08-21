@@ -5,4 +5,4 @@ packfile
 *.exe
 *.dll
 *tmp*
-.log
+*.log

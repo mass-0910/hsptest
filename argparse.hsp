@@ -3,7 +3,7 @@
 
 #module
 
-#deffunc parse_init int argnum, str options
+#deffunc local parse_init int argnum, str options
     options_buf = options
     arg_num = argnum
     sdim argument_value, 256, argnum
@@ -61,7 +61,8 @@
     }
     return cmdline_index
 
-#deffunc parse_args str cmdline, local cmdline_buf
+#deffunc parse_args int argnum, str options, str cmdline, local cmdline_buf
+    parse_init argnum, options
     sdim splitted_cmdline, 256, 64
     cmdline_buf = cmdline
     split_args cmdline_buf, splitted_cmdline

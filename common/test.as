@@ -15,6 +15,9 @@ goto *__test_as_end
 
 *__error
     mes get_fail_result_format(__errline@(__sublev@), __errfile@(__sublev@), errmsg(wparam - 1))
+    repeat __sublev@
+        mes get_callstack_format(__errfile@(cnt + 1), __errline@(cnt + 1), cnt)
+    loop
     end wparam
 
 *__test_as_end
