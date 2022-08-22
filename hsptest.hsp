@@ -219,14 +219,6 @@ if is_exist_option("--stdout") {
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
 mes ""
-if test_pass == 0 && test_fail == 0 {
-    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
-} else : if test_fail == 0 {
-    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
-} else {
-    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
-}
-
 if is_exist_option("--logfile") {
     init_logfile_module hspver_str, version, dir_cur
     logfile_path = get_option_arg("--logfile")
@@ -244,6 +236,14 @@ if is_exist_option("--logfile") {
     chdir first_cwd
     make_logfile logfile_path
     mes "output the log file to " + dir_cur + "\\" + logfile_path
+}
+
+if test_pass == 0 && test_fail == 0 {
+    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
+} else : if test_fail == 0 {
+    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
+} else {
+    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
 }
 
 end test_fail
