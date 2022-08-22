@@ -26,9 +26,9 @@ stdoutから結果をパースする
         error_message = result_match(0, 4)
     } else {
         result = "FAIL"
-        error_line = -1
+        error_line = "-1"
         error_file = "?"
-        error_message = "crash!!!"
+        error_message = "HSP3 runtime crashed!!!"
     }
     matches callstack_match, stdout, callstack_pattern, 1, 0, 0
     matched_num = stat
