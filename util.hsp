@@ -1,0 +1,32 @@
+#ifndef util_hsp_included
+#define util_hsp_included
+
+#module
+
+#defcfunc get_runtime_ver
+    sdim stdout, 2000
+    sdim ln, 2000
+    buf = "#runtime \"hsp3cl\"\nmes strf(\"%4x\",hspver)\nend 1"
+    notesel buf
+    notesave "__hspver.hsp"
+    hsc_ini@ "__hspver.hsp"
+    hsc_compath@ dir_exe + "\\common\\"
+    hsc_comp@ 1, 0, 0
+    hsc_getmes@ stdout
+    hsc_bye@
+    hsp3cl_runtime = dir_exe + "\\hsp3cl.exe " + "__hspver.ax"
+    stdout = ""
+    ln = ""
+    pipeexec@ stdout, hsp3cl_runtime
+    repeat
+        pipeget@ ln
+        if stat == 0 : break
+        wait 1
+    loop
+    delete "__hspver.hsp"
+    delete "__hspver.ax"
+    return stdout
+
+#global
+
+#endif

@@ -26,55 +26,6 @@
     }
     return
 
-/*
-テストスクリプト内で呼び出されたスクリプトファイルを一時フォルダにコピーする
-引数
-    file_name: includeを検出するファイルの名前
-    init: 再帰関数のエントリ時に1にする引数
-*/
-#deffunc local copy_included_test_file_to_temp_dir str file_name, int init, local test_script_buf, local file_line_num, local l, local addinst, local index, local copy_file_name
-    notesel test_script_buf
-    noteload file_name
-    file_line_num = notemax
-    repeat file_line_num
-        notesel test_script_buf
-        noteget l, cnt
-        if init {
-            addinst_buf = "#include #addition #uselib #pack #epack"
-            split addinst_buf, " ", addinst_list
-        }
-        repeat length(addinst_list)
-            index = instr(l, 0, addinst_list(cnt))
-            if index != -1 {
-                // includeされるファイル名を抽出
-                addinst = addinst_list(cnt)
-                index += strlen(addinst)
-                getstr copy_file_name, l, index, '"', 1024
-                index += strsize
-                getstr copy_file_name, l, index, '"', 1024
-                strrep copy_file_name, "\\\\", "\\"
-                // コピーするファイル名がパス表現のとき、再現フォルダを作成
-                if getpath(copy_file_name, 32) != "" {
-                    make_folder_in_path copy_file_name
-                }
-                // カレントディレクトリ内に存在しないとき無視
-                exist copy_file_name
-                if strsize == -1 : break
-                // commonフォルダに存在する既存スクリプトの場合無視
-                exist dir_exe + "\\common\\" + copy_file_name
-                if strsize != -1 : break
-                // 既に一時フォルダに存在するとき無視
-                exist temp_test_env_dir + "\\" + copy_file_name
-                if strsize != -1 : break
-                // コピーした後に更にincludeされるスクリプト内でincludeされるスクリプトを探す
-                copy_with_edit copy_file_name, temp_test_env_dir + "\\" + copy_file_name
-                copy_included_test_file_to_temp_dir copy_file_name, 0
-                break
-            }
-        loop
-    loop
-    return
-
 #deffunc copy_file_used_in_test local file_num
     dirlist2h@ 1
     dirlist2@ path_buf_size, "*", 1, '\\'
@@ -108,10 +59,11 @@
 返り値
     str: テストスクリプトが保存されたファイルへのパス
  */
-#defcfunc make_temp_test str testfile_name, str testlabel_name
+#defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name
     temp_test_name = "__testtmp.hsp"
     temp_test_env_dir = "__tmpenv"
-    generated_code_buf = "goto *__start\n"
+    generated_code_buf = "#runtime \"" + runtime_name + "\"\n"
+    generated_code_buf += "goto *__start\n"
     generated_code_buf += "#include \"test.as\"\n"
     generated_code_buf += "#include \"" + testfile_name + "\"\n"
     generated_code_buf += "*__start\n"
@@ -123,7 +75,6 @@
     notesave temp_test_name
     mkdir temp_test_env_dir
     copy_with_edit temp_test_name, temp_test_env_dir + "\\" + temp_test_name
-    ; copy_included_test_file_to_temp_dir temp_test_name, 1
     copy_file_used_in_test
     delete temp_test_name
     chdir temp_test_env_dir
