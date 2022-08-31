@@ -10,6 +10,8 @@
     hspver_str_ = hspver_str
     hsptest_version_ = hsptest_version
     testdir_path_ = testdir_path
+    passed_test_count = 0
+    failed_test_count = 0
     return
 
 #defcfunc local get_log_header str log_header, str separator, local buf
@@ -26,8 +28,10 @@
 #deffunc append_result_log str file_name, str test_name, int is_pass
     if is_pass {
         result_logfile_buf += file_name + "::" + test_name + ": PASSED\n"
+        passed_test_count++
     } else {
         result_logfile_buf += file_name + "::" + test_name + ": FAILED\n"
+        failed_test_count++
     }
     return
 
@@ -83,7 +87,7 @@
 
 #defcfunc get_logfile_str local buf
     buf = "ran on HSP " + hspver_str_ + ", hsptest " + hsptest_version_ + "\n\n"
-    buf += "test_dir: " + testdir_path_ + "\n\n\n"
+    buf += "test_dir: " + testdir_path_ + "\n\npassed: " + passed_test_count + "\nfailed: " + failed_test_count + "\n\n\n"
     buf += result_logfile_buf + "\n\n"
     buf += detail_logfile_buf
     buf += get_log_header("", "=") + "\n\n\n"
