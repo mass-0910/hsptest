@@ -5,7 +5,7 @@
 
 #deffunc annotation_init
     annotation_attr_names = {"
-    runtime hsp3cl
+    runtime default
     timeout -1
     ignore false
     "}

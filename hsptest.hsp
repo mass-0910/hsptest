@@ -36,6 +36,7 @@ options = {"
 -s --stdout 0
 -l --logfile 1
 -h --help 0
+-r --runtime 1
 "}
 parse_args 1, options, dir_cmdline
 
@@ -50,8 +51,15 @@ if is_exist_option("--help") {
     mes "  -v, --verbose          print the result for each test"
     mes "  -s, --stdout           display captured stdout while test"
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
+    mes "  -r, --runtime RUNTIME  specify runtime to run tests"
     mes "  -h, --help             show this help message"
     end
+}
+
+// exit if runtime name is invalid
+if is_exist_option("--runtime") && is_valid_runtime_name(get_option_arg("--runtime")) == 0 {
+    color_mes "hsptest: error: " + get_option_arg("--runtime") + " is invalid runtime name", 0, FOREGROUND_RED
+    end -1
 }
 
 // change cwd to test directory
@@ -136,10 +144,20 @@ repeat file_num
             annotation_parse annotation_line
         }
 
+        // select runtime
+        runtime_name = get_annotation_attr_val("runtime")
+        if runtime_name == "default" {
+            if is_exist_option("--runtime") {
+                runtime_name = get_option_arg("--runtime")
+            } else {
+                runtime_name = "hsp3cl"
+            }
+        }
+
         // continue next test if ignored
-        if get_annotation_attr_val("ignore") == "true" || is_valid_runtime_name(get_annotation_attr_val("runtime")) == 0 {
-            if is_valid_runtime_name(get_annotation_attr_val("runtime")) == 0 {
-                color_mes "hsptest: error: " + get_annotation_attr_val("runtime") + " is invalid runtime name", 0, FOREGROUND_RED
+        if get_annotation_attr_val("ignore") == "true" || is_valid_runtime_name(runtime_name) == 0 {
+            if is_valid_runtime_name(runtime_name) == 0 {
+                color_mes "hsptest: error: " + runtime_name + " is invalid runtime name", 0, FOREGROUND_RED
             }
             stdout_file_name(test_num) = file_name
             stdout_test_name(test_num) = test_name
@@ -158,7 +176,7 @@ repeat file_num
         }
 
         // make temporary testcall script
-        temptest_path = make_temp_test(file_name, label_name, get_annotation_attr_val("runtime"))
+        temptest_path = make_temp_test(file_name, label_name, runtime_name)
 
         // compile test
         hsc_ini temptest_path
@@ -176,7 +194,7 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dir_exe + "\\" + get_annotation_attr_val("runtime") + ".exe " + getpath(temptest_path, 1) + ".ax"
+        hsp3cl_runtime = dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
