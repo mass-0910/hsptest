@@ -1,0 +1,52 @@
+#ifndef annotation_hsp_included
+#define annotation_hsp_included
+
+#module
+
+#deffunc annotation_init
+    annotation_attr_names = {"
+    runtime hsp3cl
+    timeout -1
+    ignore false
+    "}
+    notesel annotation_attr_names
+    sdim annotation_values, 64, notemax
+    repeat notemax
+        noteget annotation_attr, cnt
+        split annotation_attr, " ", annotation_name, annotation_default_value
+        annotation_values(cnt) = annotation_default_value
+    loop
+    return
+
+#deffunc annotation_parse str annotation_line
+    annotation_str = submatch(annotation_line, ";!\s*(.+)", 0, 0)
+    matches annotation_matches, annotation_str, "(\\w+)\\s*=\\s*([\\w-\\.]+)", 0, 0, 1
+    repeat stat
+        notesel annotation_attr_names
+        ccnt = cnt
+        repeat notemax
+            noteget annotation_attr, cnt
+            split annotation_attr, " ", annotation_name, annotation_default_value
+            if annotation_matches(ccnt, 1) == annotation_name {
+                annotation_values(cnt) = annotation_matches(ccnt, 2)
+            }
+        loop
+    loop
+    return
+
+#defcfunc get_annotation_attr_val str attr_name
+    retval = ""
+    notesel annotation_attr_names
+    repeat notemax
+        noteget annotation_attr, cnt
+        split annotation_attr, " ", annotation_name, annotation_default_value
+        if attr_name == annotation_name {
+            retval = annotation_values(cnt)
+            break
+        }
+    loop
+    return retval
+
+#global
+
+#endif

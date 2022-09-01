@@ -63,14 +63,17 @@
     temp_test_name = "__testtmp.hsp"
     temp_test_env_dir = "__tmpenv"
     generated_code_buf = "#runtime \"" + runtime_name + "\"\n"
+    generated_code_buf += "#include \"kernel32.as\"\n"
+    generated_code_buf += "AllocConsole\n"
     generated_code_buf += "goto *__start\n"
     generated_code_buf += "#include \"test.as\"\n"
     generated_code_buf += "#include \"" + testfile_name + "\"\n"
     generated_code_buf += "*__start\n"
     generated_code_buf += "gosub *__testinit\n"
     generated_code_buf += "gosub " + testlabel_name + "\n"
-    generated_code_buf += "mes get_pass_result_format()\n"
-    generated_code_buf += "end 1"
+    generated_code_buf += "__result_str = get_pass_result_format() + \"\\n\"\n"
+    generated_code_buf += "WriteFile __stdout_handle, __result_str, strlen(__result_str), 0, 0\n"
+    generated_code_buf += "end 0"
     notesel generated_code_buf
     notesave temp_test_name
     mkdir temp_test_env_dir

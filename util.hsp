@@ -27,6 +27,23 @@
     delete "__hspver.ax"
     return stdout
 
+#defcfunc is_valid_runtime_name str runtime_name
+    if runtime_name == "hsp3" : return 1
+    retval = 0
+    now_cwd = dir_cur
+    chdir dir_exe + "\\runtime"
+    dirlist runtime_file_buf, "*.hrt", 0
+    notesel runtime_file_buf
+    repeat notemax
+        noteget file_name, cnt
+        if runtime_name == getpath(file_name, 1) {
+            retval = 1
+            break
+        }
+    loop
+    chdir now_cwd
+    return retval
+
 #global
 
 #endif

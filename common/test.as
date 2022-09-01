@@ -11,12 +11,16 @@ goto *__test_as_end
     #include "exception_code.as"
     dim __errline, 1024
     sdim __errfile, 32, 1024
+    sdim __output_buf, 1024
+    __stdout_handle = GetStdHandle(-11)
     return
 
 *__error
-    mes get_fail_result_format(__errline@(__sublev@), __errfile@(__sublev@), errmsg(wparam - 1))
+    __output_buf = get_fail_result_format(__errline@(__sublev@), __errfile@(__sublev@), errmsg(wparam - 1)) + "\n"
+    WriteFile __stdout_handle, __output_buf, strlen(__output_buf), 0, 0
     repeat __sublev@
-        mes get_callstack_format(__errfile@(cnt + 1), __errline@(cnt + 1), cnt)
+        __output_buf = get_callstack_format(__errfile@(cnt + 1), __errline@(cnt + 1), cnt) + "\n"
+        WriteFile __stdout_handle, __output_buf, strlen(__output_buf), 0, 0
     loop
     end wparam
 

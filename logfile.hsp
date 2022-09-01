@@ -25,13 +25,16 @@
     loop
     return buf
 
-#deffunc append_result_log str file_name, str test_name, int is_pass
-    if is_pass {
+#deffunc append_result_log str file_name, str test_name, int status
+    if status == 0 {
         result_logfile_buf += file_name + "::" + test_name + ": PASSED\n"
         passed_test_count++
-    } else {
+    } else : if status == 1 {
         result_logfile_buf += file_name + "::" + test_name + ": FAILED\n"
         failed_test_count++
+    } else : if status == 2 {
+        result_logfile_buf += file_name + "::" + test_name + ": IGNORED\n"
+        passed_test_count++
     }
     return
 

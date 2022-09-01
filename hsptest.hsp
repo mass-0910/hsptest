@@ -15,6 +15,7 @@
 #include "logfile.hsp"
 #include "parse_result.hsp"
 #include "util.hsp"
+#include "annotation.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
@@ -127,8 +128,37 @@ repeat file_num
         if l == -1 : break
         notedel l
 
+        // get annotations
+        annotation_init
+        notesel testcode_buf
+        if l - 1 >= 0 {
+            noteget annotation_line, l - 1
+            annotation_parse annotation_line
+        }
+
+        // continue next test if ignored
+        if get_annotation_attr_val("ignore") == "true" || is_valid_runtime_name(get_annotation_attr_val("runtime")) == 0 {
+            if is_valid_runtime_name(get_annotation_attr_val("runtime")) == 0 {
+                color_mes "hsptest: error: " + get_annotation_attr_val("runtime") + " is invalid runtime name", 0, FOREGROUND_RED
+            }
+            stdout_file_name(test_num) = file_name
+            stdout_test_name(test_num) = test_name
+            if is_exist_option("--verbose") {
+                mes file_name + "::" + test_name + ": ", 1
+                color_mes "IGNORED", 1, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+                right_justified_mes "[" + strf("%3d", int((double(test_num + 1) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 1
+            } else {
+                color_mes "-", 1, FOREGROUND_GREEN | FOREGROUND_BLUE
+                right_justified_mes "[" + strf("%3d", int((double(test_num + 1) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 0
+            }
+            stdout_result(test_num) = 2
+            test_num++
+            test_pass++
+            continue
+        }
+
         // make temporary testcall script
-        temptest_path = make_temp_test(file_name, label_name, "hsp3cl")
+        temptest_path = make_temp_test(file_name, label_name, get_annotation_attr_val("runtime"))
 
         // compile test
         hsc_ini temptest_path
@@ -146,7 +176,7 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dir_exe + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
+        hsp3cl_runtime = dir_exe + "\\" + get_annotation_attr_val("runtime") + ".exe " + getpath(temptest_path, 1) + ".ax"
         stdout = ""
         ln = ""
         pipeexec stdout, hsp3cl_runtime
@@ -224,7 +254,7 @@ if is_exist_option("--logfile") {
     init_logfile_module hspver_str, version, dir_cur
     logfile_path = get_option_arg("--logfile")
     repeat all_test_num
-        append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt) == 0
+        append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt)
         if stdout_buf(cnt) != "" : append_stdout_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_buf(cnt)
         sdim callstack, 64, 1024
         ccnt = cnt
@@ -232,7 +262,7 @@ if is_exist_option("--logfile") {
             if callstack_buf(cnt, ccnt) == "" : break
             callstack(cnt) = callstack_buf(cnt, ccnt)
         loop
-        if stdout_result(cnt) : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
+        if stdout_result(cnt) == 1 : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
     loop
     chdir first_cwd
     make_logfile logfile_path
