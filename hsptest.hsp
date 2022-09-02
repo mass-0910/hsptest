@@ -39,6 +39,7 @@ options = {"
 -l --logfile 1
 -h --help 0
 -r --runtime 1
+--version --version 0
 "}
 parse_args 1, options, dir_cmdline
 
@@ -55,6 +56,13 @@ if is_exist_option("--help") {
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
     mes "  -r, --runtime RUNTIME  specify runtime to run tests"
     mes "  -h, --help             show this help message"
+    mes "  --version              show hsptest version"
+    end
+}
+
+// show version
+if is_exist_option("--version") {
+    mes "hsptest " + version
     end
 }
 
