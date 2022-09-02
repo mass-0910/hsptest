@@ -16,6 +16,7 @@
 #include "parse_result.hsp"
 #include "util.hsp"
 #include "annotation.hsp"
+#include "script_tool.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
@@ -82,18 +83,23 @@ loop
 hspver_str = tmpstr
 mes "HSP " + hspver_str + ", hsptest " + version
 
+label_pattern = "^(?:.*:)?[ \\t]*(\\*test\\w*)[^\\r]*$"
+
 // count test num
 all_test_num = 0
 repeat file_num
     notesel testcodes
     noteget file_name, cnt
-    if instr(file_name, 0, "test") == -1 : continue
+    if strlen(match(file_name, "test")) == 0 : continue
     notesel testcode_buf
     noteload file_name
+    remove_comment tmp, testcode_buf
+    testcode_buf = tmp
     repeat
+        matches label_match, testcode_buf, label_pattern, 0, 1, 0
+        if stat == 0 : break
         notesel testcode_buf
-        l = notefind("*test", 1)
-        if l == -1 : break
+        l = notefind(label_match(0), 0)
         notedel l
         all_test_num++
     loop
@@ -120,21 +126,24 @@ repeat file_num
     // continue if file is not test
     notesel testcodes
     noteget file_name, cnt
-    if instr(file_name, 0, "test") == -1 : continue
+    if strlen(match(file_name, "test")) == 0 : continue
 
     notesel testcode_buf
     noteload file_name
+    remove_comment tmp, testcode_buf
+    testcode_buf = tmp
 
     if is_exist_option("--verbose") == 0 : mes file_name + " ", 1
 
     repeat
 
         // get test labels
+        matches label_match, testcode_buf, label_pattern, 0, 1, 0
+        if stat == 0 : break
         notesel testcode_buf
-        l = notefind("*test", 1)
-        noteget label_name, l
+        l = notefind(label_match(0), 0)
+        label_name = label_match(0, 1)
         test_name = strmid(label_name, 1, 1024)
-        if l == -1 : break
         notedel l
 
         // get annotations
