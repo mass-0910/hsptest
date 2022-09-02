@@ -26,6 +26,7 @@ sdim ln, 2000
 
 test_pass = 0
 test_fail = 0
+test_ignore = 0
 
 // initialize console output
 console_init
@@ -171,7 +172,7 @@ repeat file_num
             }
             stdout_result(test_num) = 2
             test_num++
-            test_pass++
+            test_ignore++
             continue
         }
 
@@ -288,11 +289,23 @@ if is_exist_option("--logfile") {
 }
 
 if test_pass == 0 && test_fail == 0 {
-    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
+    if test_ignore {
+        centered_mes " no tests ran in " + spend_time + " seconds ( " + test_ignore + " tests ignored ) ", FOREGROUND_WHITE, "="
+    } else {
+        centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
+    }
 } else : if test_fail == 0 {
-    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
+    if test_ignore {
+        centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ( " + test_ignore + " tests ignored ) ", FOREGROUND_GREEN, "="
+    } else {
+        centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
+    }
 } else {
-    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    if test_ignore {
+        centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed, " + test_ignore + " ignored in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    } else {
+        centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    }
 }
 
 end test_fail

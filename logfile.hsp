@@ -12,6 +12,7 @@
     testdir_path_ = testdir_path
     passed_test_count = 0
     failed_test_count = 0
+    ignored_test_count = 0
     return
 
 #defcfunc local get_log_header str log_header, str separator, local buf
@@ -34,7 +35,7 @@
         failed_test_count++
     } else : if status == 2 {
         result_logfile_buf += file_name + "::" + test_name + ": IGNORED\n"
-        passed_test_count++
+        ignored_test_count++
     }
     return
 
