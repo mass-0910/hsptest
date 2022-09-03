@@ -212,15 +212,35 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax"
-        stdout = ""
-        ln = ""
-        pipeexec stdout, hsp3cl_runtime
-        repeat
-            pipeget ln
-            if stat == 0 : break
-            wait 1
-        loop
+        dim process_info, 4
+        dim sa_attr, 3
+        runtime_stdout_handle_rd = 0 : runtime_stdout_handle_wr = 0
+        sa_attr(0) = 12 : sa_attr(1) = 0 : sa_attr(2) = 1
+        CreatePipe varptr(runtime_stdout_handle_rd), varptr(runtime_stdout_handle_wr), varptr(sa_attr), 0
+        dim startup_info, 17
+        startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
+        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax", 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+        CloseHandle runtime_stdout_handle_wr
+        if double(get_annotation_attr_val("timeout")) <= 0.0 {
+            timeout = 0xFFFFFFFF
+        } else {
+            timeout = int(double(get_annotation_attr_val("timeout")) * 1000.0)
+        }
+        waitforsingleobject_status = WaitForSingleObject(process_info(0), timeout)
+        if waitforsingleobject_status == 0x00000102 { // timeout
+            stdout = get_fail_result_format(-1, "?", "Test timed out (" + get_annotation_attr_val("timeout") + " seconds)") + "\n"
+            TerminateProcess process_info(0), -1
+        } else {
+            read_size = 0
+            memset stdout, 0, varsize(stdout)
+            sdim tmpbuf, 256
+            repeat
+                memset tmpbuf, 0, varsize(tmpbuf)
+                if ReadFile(runtime_stdout_handle_rd, varptr(tmpbuf), varsize(tmpbuf), varptr(read_size), 0) == 0 : break
+                stdout += tmpbuf
+            loop
+        }
+        CloseHandle runtime_stdout_handle_rd
 
         // collect result
         sdim callstack, 64, 1024
@@ -243,7 +263,11 @@ repeat file_num
             if result == "PASS" {
                 color_mes "PASSED", 1, FOREGROUND_GREEN | FOREGROUND_INTENSITY
             } else {
-                color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                if errline == "-1" {
+                    color_mes "FAILED: " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                } else {
+                    color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                }
             }
             right_justified_mes "[" + strf("%3d", int((double(test_num) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 1
         } else {
