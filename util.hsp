@@ -44,6 +44,10 @@
     chdir now_cwd
     return retval
 
+#defcfunc exist_dir str path
+    dw_attrib = GetFileAttributes(path)
+    return dw_attrib != -1 && (dw_attrib & 0x00000010) != 0
+
 #global
 
 #endif
