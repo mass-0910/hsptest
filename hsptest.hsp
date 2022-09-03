@@ -14,16 +14,20 @@
 #include "console.hsp"
 #include "logfile.hsp"
 #include "parse_result.hsp"
+#include "util.hsp"
+#include "annotation.hsp"
+#include "script_tool.hsp"
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-version = "0.6"
+version = "0.7"
 
 sdim stdout, 2000
 sdim ln, 2000
 
 test_pass = 0
 test_fail = 0
+test_ignore = 0
 
 // initialize console output
 console_init
@@ -34,6 +38,8 @@ options = {"
 -s --stdout 0
 -l --logfile 1
 -h --help 0
+-r --runtime 1
+--version --version 0
 "}
 parse_args 1, options, dir_cmdline
 
@@ -48,8 +54,22 @@ if is_exist_option("--help") {
     mes "  -v, --verbose          print the result for each test"
     mes "  -s, --stdout           display captured stdout while test"
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
+    mes "  -r, --runtime RUNTIME  specify runtime to run tests"
     mes "  -h, --help             show this help message"
+    mes "  --version              show hsptest version"
     end
+}
+
+// show version
+if is_exist_option("--version") {
+    mes "hsptest " + version
+    end
+}
+
+// exit if runtime name is invalid
+if is_exist_option("--runtime") && is_valid_runtime_name(get_option_arg("--runtime")) == 0 {
+    color_mes "hsptest: error: " + get_option_arg("--runtime") + " is invalid runtime name", 0, FOREGROUND_RED
+    end -1
 }
 
 // change cwd to test directory
@@ -61,7 +81,7 @@ file_num = notemax
 
 // output first message
 centered_mes " test session starts ", FOREGROUND_WHITE, "="
-hspver_str = strf("%4x", hspver)
+hspver_str = get_runtime_ver()
 tmpstr = ""
 repeat 4
     tmpstr += strmid(hspver_str, cnt, 1)
@@ -71,18 +91,23 @@ loop
 hspver_str = tmpstr
 mes "HSP " + hspver_str + ", hsptest " + version
 
+label_pattern = "^(?:.*:)?[ \\t]*(\\*test\\w*)[^\\r]*$"
+
 // count test num
 all_test_num = 0
 repeat file_num
     notesel testcodes
     noteget file_name, cnt
-    if instr(file_name, 0, "test") == -1 : continue
+    if strlen(match(file_name, "test")) == 0 : continue
     notesel testcode_buf
     noteload file_name
+    remove_comment tmp, testcode_buf
+    testcode_buf = tmp
     repeat
+        matches label_match, testcode_buf, label_pattern, 0, 1, 0
+        if stat == 0 : break
         notesel testcode_buf
-        l = notefind("*test", 1)
-        if l == -1 : break
+        l = notefind(label_match(0), 0)
         notedel l
         all_test_num++
     loop
@@ -109,25 +134,67 @@ repeat file_num
     // continue if file is not test
     notesel testcodes
     noteget file_name, cnt
-    if instr(file_name, 0, "test") == -1 : continue
+    if strlen(match(file_name, "test")) == 0 : continue
 
     notesel testcode_buf
     noteload file_name
+    remove_comment tmp, testcode_buf
+    testcode_buf = tmp
 
     if is_exist_option("--verbose") == 0 : mes file_name + " ", 1
 
     repeat
 
         // get test labels
+        matches label_match, testcode_buf, label_pattern, 0, 1, 0
+        if stat == 0 : break
         notesel testcode_buf
-        l = notefind("*test", 1)
-        noteget label_name, l
+        l = notefind(label_match(0), 0)
+        label_name = label_match(0, 1)
         test_name = strmid(label_name, 1, 1024)
-        if l == -1 : break
         notedel l
 
+        // get annotations
+        annotation_init
+        notesel testcode_buf
+        if l - 1 >= 0 {
+            noteget annotation_line, l - 1
+            annotation_parse annotation_line
+        }
+
+        // select runtime
+        runtime_name = get_annotation_attr_val("runtime")
+        if runtime_name == "default" {
+            if is_exist_option("--runtime") {
+                runtime_name = get_option_arg("--runtime")
+            } else {
+                runtime_name = "hsp3cl"
+            }
+        }
+
+        // continue next test if ignored
+        if get_annotation_attr_val("ignore") == "true" || is_valid_runtime_name(runtime_name) == 0 {
+            if is_valid_runtime_name(runtime_name) == 0 {
+                color_mes "hsptest: error: " + runtime_name + " is invalid runtime name", 0, FOREGROUND_RED
+            }
+            stdout_file_name(test_num) = file_name
+            stdout_test_name(test_num) = test_name
+            if is_exist_option("--verbose") {
+                mes file_name + "::" + test_name + ": ", 1
+                color_mes "IGNORED", 1, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+                right_justified_mes "[" + strf("%3d", int((double(test_num + 1) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 1
+            } else {
+                color_mes "-", 1, FOREGROUND_GREEN | FOREGROUND_BLUE
+                right_justified_mes "[" + strf("%3d", int((double(test_num + 1) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 0
+            }
+            stdout_result(test_num) = 2
+            test_num++
+            test_ignore++
+            continue
+        }
+
         // make temporary testcall script
-        temptest_path = make_temp_test(file_name, label_name)
+        temptest_path = make_temp_test(file_name, label_name, runtime_name)
 
         // compile test
         hsc_ini temptest_path
@@ -145,15 +212,35 @@ repeat file_num
         }
 
         // execute test
-        hsp3cl_runtime = dir_exe + "\\hsp3cl.exe " + getpath(temptest_path, 1) + ".ax"
-        stdout = ""
-        ln = ""
-        pipeexec stdout, hsp3cl_runtime
-        repeat
-            pipeget ln
-            if stat == 0 : break
-            wait 1
-        loop
+        dim process_info, 4
+        dim sa_attr, 3
+        runtime_stdout_handle_rd = 0 : runtime_stdout_handle_wr = 0
+        sa_attr(0) = 12 : sa_attr(1) = 0 : sa_attr(2) = 1
+        CreatePipe varptr(runtime_stdout_handle_rd), varptr(runtime_stdout_handle_wr), varptr(sa_attr), 0
+        dim startup_info, 17
+        startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
+        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax", 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+        CloseHandle runtime_stdout_handle_wr
+        if double(get_annotation_attr_val("timeout")) <= 0.0 {
+            timeout = 0xFFFFFFFF
+        } else {
+            timeout = int(double(get_annotation_attr_val("timeout")) * 1000.0)
+        }
+        waitforsingleobject_status = WaitForSingleObject(process_info(0), timeout)
+        if waitforsingleobject_status == 0x00000102 { // timeout
+            stdout = get_fail_result_format(-1, "?", "Test timed out (" + get_annotation_attr_val("timeout") + " seconds)") + "\n"
+            TerminateProcess process_info(0), -1
+        } else {
+            read_size = 0
+            memset stdout, 0, varsize(stdout)
+            sdim tmpbuf, 256
+            repeat
+                memset tmpbuf, 0, varsize(tmpbuf)
+                if ReadFile(runtime_stdout_handle_rd, varptr(tmpbuf), varsize(tmpbuf), varptr(read_size), 0) == 0 : break
+                stdout += tmpbuf
+            loop
+        }
+        CloseHandle runtime_stdout_handle_rd
 
         // collect result
         sdim callstack, 64, 1024
@@ -176,7 +263,11 @@ repeat file_num
             if result == "PASS" {
                 color_mes "PASSED", 1, FOREGROUND_GREEN | FOREGROUND_INTENSITY
             } else {
-                color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                if errline == "-1" {
+                    color_mes "FAILED: " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                } else {
+                    color_mes "FAILED at line " + errline + " of " + errfile + ": " + errdetail, 1, FOREGROUND_RED | FOREGROUND_INTENSITY
+                }
             }
             right_justified_mes "[" + strf("%3d", int((double(test_num) / double(all_test_num)) * 100.0)) + "%]", FOREGROUND_GREEN, 1
         } else {
@@ -223,7 +314,7 @@ if is_exist_option("--logfile") {
     init_logfile_module hspver_str, version, dir_cur
     logfile_path = get_option_arg("--logfile")
     repeat all_test_num
-        append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt) == 0
+        append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt)
         if stdout_buf(cnt) != "" : append_stdout_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_buf(cnt)
         sdim callstack, 64, 1024
         ccnt = cnt
@@ -231,7 +322,7 @@ if is_exist_option("--logfile") {
             if callstack_buf(cnt, ccnt) == "" : break
             callstack(cnt) = callstack_buf(cnt, ccnt)
         loop
-        if stdout_result(cnt) : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
+        if stdout_result(cnt) == 1 : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
     loop
     chdir first_cwd
     make_logfile logfile_path
@@ -239,11 +330,23 @@ if is_exist_option("--logfile") {
 }
 
 if test_pass == 0 && test_fail == 0 {
-    centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
+    if test_ignore {
+        centered_mes " no tests ran in " + spend_time + " seconds ( " + test_ignore + " tests ignored ) ", FOREGROUND_WHITE, "="
+    } else {
+        centered_mes " no tests ran in " + spend_time + " seconds ", FOREGROUND_WHITE, "="
+    }
 } else : if test_fail == 0 {
-    centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
+    if test_ignore {
+        centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ( " + test_ignore + " tests ignored ) ", FOREGROUND_GREEN, "="
+    } else {
+        centered_mes " all " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_GREEN, "="
+    }
 } else {
-    centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    if test_ignore {
+        centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed, " + test_ignore + " ignored in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    } else {
+        centered_mes " " + str(test_fail) + " failed, " + str(test_pass) + " passed in " + spend_time + " seconds ", FOREGROUND_RED, "="
+    }
 }
 
 end test_fail

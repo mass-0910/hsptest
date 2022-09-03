@@ -10,6 +10,9 @@
     hspver_str_ = hspver_str
     hsptest_version_ = hsptest_version
     testdir_path_ = testdir_path
+    passed_test_count = 0
+    failed_test_count = 0
+    ignored_test_count = 0
     return
 
 #defcfunc local get_log_header str log_header, str separator, local buf
@@ -23,11 +26,16 @@
     loop
     return buf
 
-#deffunc append_result_log str file_name, str test_name, int is_pass
-    if is_pass {
+#deffunc append_result_log str file_name, str test_name, int status
+    if status == 0 {
         result_logfile_buf += file_name + "::" + test_name + ": PASSED\n"
-    } else {
+        passed_test_count++
+    } else : if status == 1 {
         result_logfile_buf += file_name + "::" + test_name + ": FAILED\n"
+        failed_test_count++
+    } else : if status == 2 {
+        result_logfile_buf += file_name + "::" + test_name + ": IGNORED\n"
+        ignored_test_count++
     }
     return
 
@@ -38,6 +46,10 @@
 
 #deffunc append_detail_log str file_name, str test_name, str error_file, int error_line, str error_detail, array callstack
     detail_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
+    if error_line == -1 {
+        detail_logfile_buf += "FAILED : " + error_detail + "\n"
+        return
+    }
     detail_logfile_buf += "FAILED at file \"" + error_file + "\", line " + error_line + " : " + error_detail + "\n"
     exist error_file
     if strsize != -1 {
@@ -53,8 +65,6 @@
                 detail_logfile_buf += strf("%5d", get_line + 1) + "|" + line_buf + "\n"
             }
         loop
-    } else {
-        detail_logfile_buf += error_detail
     }
     callstack_str = ""
     callstack_exist = 0
@@ -83,7 +93,7 @@
 
 #defcfunc get_logfile_str local buf
     buf = "ran on HSP " + hspver_str_ + ", hsptest " + hsptest_version_ + "\n\n"
-    buf += "test_dir: " + testdir_path_ + "\n\n\n"
+    buf += "test_dir: " + testdir_path_ + "\n\npassed: " + passed_test_count + "\nfailed: " + failed_test_count + "\n\n\n"
     buf += result_logfile_buf + "\n\n"
     buf += detail_logfile_buf
     buf += get_log_header("", "=") + "\n\n\n"

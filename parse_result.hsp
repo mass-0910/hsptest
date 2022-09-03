@@ -14,7 +14,7 @@ stdoutから結果をパースする
 */
 #deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, var removed_stdout, array callstack
     buf = stdout
-    result_pattern = "&RESULT&\\{(PASS|FAIL);([0-9]+);([^;]+);(.+)\\}\n"
+    result_pattern = "&RESULT&\\{(PASS|FAIL);(-?[0-9]+);([^;]+);(.+)\\}\n"
     callstack_pattern = "&CALLSTACK&\\{([^;]+);([0-9]+);([0-9]+)\\}\n"
     matches result_match, stdout, result_pattern, 1, 1, 0
     matched_num = stat

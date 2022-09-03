@@ -81,7 +81,7 @@
                     repeat option_arg_num(cnt)
                         arg_index++
                         if arg_index >= cmdline_num {
-                            mes "hsptest: error: argument " + optname + " requires " + optargnum + " arguments"
+                            color_mes@ "hsptest: error: option " + optname + " requires " + optargnum + " arguments", 0, 4
                             end -1
                         }
                         option_value(cccnt) += splitted_cmdline(arg_index) + " "
@@ -95,7 +95,7 @@
         loop
         if is_option == 0 {
             if detected_args >= arg_num {
-                mes "hsptest: error: argument only " + arg_num + "required"
+                color_mes@ "hsptest: error: argument only " + arg_num + " required", 0, 4
                 end -1
             }
             argument_value(detected_args) = splitted_cmdline(arg_index)
