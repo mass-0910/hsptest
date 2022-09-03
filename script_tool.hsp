@@ -14,7 +14,7 @@
         ch2 = peek(script_buf, read_index + 1)
         if ch2 == 0 : break
         if comment_mode == 0 {
-            if (ch1 == ';') || (ch1 == '/' && ch2 == '/') : comment_mode = 1
+            if (ch1 == ';' && ch2 != '!') || (ch1 == '/' && ch2 == '/') : comment_mode = 1
             if (ch1 == '/' && ch2 == '*') : comment_mode = 2
         } else : if comment_mode == 1 {
             if ch1 == '\n' : comment_mode = 0
