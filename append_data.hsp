@@ -8,74 +8,33 @@
 #define SUCCESS 1
 #define FAILURE 0
 
+/*
+引数が単語に使用される文字コードかどうかを判定する
+引数
+    ch: 文字コード
+返り値
+    文字コードが単語に使用されるものの場合true
+*/
 #defcfunc is_name_alphabet int ch
     return ('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') || ('0' <= ch && ch <= '9') || ch == '_'
 
+/*
+引数が空白文字コードかどうかを判定する
+引数
+    ch: 文字コード
+返り値
+    文字コードが空白文字の場合true
+*/
 #defcfunc is_space int ch
     return ch == ' ' || ch == '\t'
 
-#defcfunc is_entry_inst str line_str
-    index = 0
-    init_status = 1
-    line_str_buf = line_str
-    status = init_status
-    result = SUCCESS
-    entry_inst = "deffunc defcfunc modfunc modcfunc modinit modterm"
-    split entry_inst, " ", entry_inst_list
-    repeat
-        ch = peek(line_str_buf, index)
-        if status == 1 {
-            if ch == '*' {
-                status = 2
-            } else : if ch == '#' {
-                status = 6
-            } else : if is_space(ch) {
-                status = 1
-            } else {
-                result = FAILURE
-            }
-        } else : if status == 2 {
-            if is_name_alphabet(ch) {
-                status = 3
-            } else {
-                result = FAILURE
-            }
-        } else : if status == 3 {
-            if is_name_alphabet(ch) {
-                status = 3
-            } else : if is_space(ch) {
-                status = 4
-            } else {
-                result = FAILURE
-            }
-        } else : if status == 4 {
-            if is_space(ch) == 0 {
-                result = FAILURE
-            }
-        } else : if status == 6 {
-            repeat length(entry_inst_list)
-                if instr(line_str_buf, index, entry_inst_list(cnt)) == 0 {
-                    status = 7
-                    index += strlen(entry_inst_list(cnt)) - 1
-                    break
-                }
-            loop
-            if status == 6 : result = FAILURE
-        } else : if status == 7 {
-            if is_space(ch) {
-                status = 8
-            } else {
-                result = FAILURE
-            }
-        } else : if status == 8 {
-            // success
-        }
-        if result == FAILURE : break
-        index++
-        if index >= strlen(line_str_buf) : break
-    loop
-    return result
-
+/*
+引数の行文字列がHSP3におけるマルチラインコードかどうかを判定する
+引数
+    line_str: HSP3スクリプトの1行コード文字列
+返り値
+    コードがマルチラインコードの場合true
+*/
 #defcfunc is_multi_line str line_str
     line_str_buf = line_str
     result = 0
@@ -90,6 +49,12 @@
     loop
     return result
 
+/*
+スクリプトに状態取得用プログラムを挿入したコピーを作成する
+引数
+    src_file_path: コピー元スクリプトへのパス
+    dest_file_path: コピー先スクリプトへのパス
+*/
 #deffunc copy_with_edit str src_file_path, str dest_file_path
     notesel buf
     noteload src_file_path

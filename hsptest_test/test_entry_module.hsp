@@ -12,35 +12,3 @@
     assertTrue is_space(' ')
     assertTrue is_space('\t')
     return
-
-*test1
-    assertTrue is_entry_inst("    *label_Hogehoge    ")
-    return
-
-*test2
-    assertTrue is_entry_inst("  #deffunc func str aaa")
-    return
-
-*test3
-    assertTrue is_entry_inst("#defcfunc func str aaa")
-    return
-
-*test4
-    assertTrue is_entry_inst("#modfunc func str aaa")
-    return
-
-*test5
-    assertTrue is_entry_inst("#modcfunc func str aaa")
-    return
-
-*test6
-    assertTrue is_entry_inst("#modinit")
-    return
-
-*test7
-    assertTrue is_entry_inst("#modterm")
-    return
-
-*test8
-    assertFalse is_entry_inst("#defafunc func str aaa")
-    return

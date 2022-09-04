@@ -3,6 +3,11 @@
 
 #module
 
+/*
+HSP3ランタイムからそのバージョンを取得する
+返り値
+    ランタイムのバージョン文字列
+*/
 #defcfunc get_runtime_ver
     sdim stdout, 2000
     sdim ln, 2000
@@ -27,6 +32,13 @@
     delete "__hspver.ax"
     return stdout
 
+/*
+引数で渡されたランタイム名が有効であるかを判定する
+引数
+    runtime_name: ランタイム名
+返り値
+    ruintime_nameが有効であればtrue
+*/
 #defcfunc is_valid_runtime_name str runtime_name
     if runtime_name == "hsp3" : return 1
     retval = 0
@@ -43,6 +55,17 @@
     loop
     chdir now_cwd
     return retval
+
+/*
+引数で渡されたパスがフォルダであるかどうかを判定する
+引数
+    path: パス文字列
+返り値
+    pathがフォルダであればtrue
+*/
+#defcfunc exist_dir str path
+    dw_attrib = GetFileAttributes(path)
+    return dw_attrib != -1 && (dw_attrib & 0x00000010) != 0
 
 #global
 

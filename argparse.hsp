@@ -3,6 +3,12 @@
 
 #module
 
+/*
+引数パーサの初期化を行う
+引数
+    argnum: プログラムが受け取るオプション以外の引数の数
+    options: オプション仕様が記述された文字列
+*/
 #deffunc local parse_init int argnum, str options
     options_buf = options
     arg_num = argnum
@@ -21,6 +27,12 @@
     loop
     return
 
+/*
+コマンドライン引数を字句ごとに分割する
+引数
+    cmdline_buf: コマンドライン引数が格納された文字列変数
+    splitted_cmdline: 分割された引数が格納される出力用の文字列型配列
+*/
 #deffunc split_args var cmdline_buf, array splitted_cmdline, local element_buf, local write_index, local cmdline_index, local str_start
     sdim element_buf, 256
     str_start = 0
@@ -61,6 +73,13 @@
     }
     return cmdline_index
 
+/*
+コマンドライン引数をパースする
+引数:
+    argnum: プログラムが受け取るオプション以外の引数の数
+    options: オプション仕様が記述された文字列
+    cmdline: コマンドライン引数
+*/
 #deffunc parse_args int argnum, str options, str cmdline, local cmdline_buf
     parse_init argnum, options
     sdim splitted_cmdline, 256, 64
@@ -105,9 +124,23 @@
     loop
     return
 
+/*
+引数を取得する
+引数
+    arg: 引数番号
+返り値
+    引数の値
+*/
 #defcfunc get_arg int arg
     return argument_value(arg)
 
+/*
+オプションがコマンドライン引数内に存在しているかを判定する
+引数
+    arg_name: オプション名
+返り値
+    オプションが存在している場合true
+*/
 #defcfunc is_exist_option str arg_name, local retval
     retval = 0
     repeat length(option_name_short)
@@ -118,10 +151,17 @@
     loop
     return retval
 
-#defcfunc get_option_arg str arg_name, local retval
+/*
+オプションに渡された引数を取得する
+引数
+    option_name: オプション名
+返り値
+    オプションに渡された引数
+*/
+#defcfunc get_option_arg str option_name, local retval
     retval = ""
     repeat length(option_name_short)
-        if arg_name == option_name_short(cnt) || arg_name == option_name_long(cnt) {
+        if option_name == option_name_short(cnt) || option_name == option_name_long(cnt) {
             retval = option_value(cnt)
             break
         }
