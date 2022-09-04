@@ -74,7 +74,13 @@ if is_exist_option("--runtime") && is_valid_runtime_name(get_option_arg("--runti
 
 // change cwd to test directory
 first_cwd = dir_cur
-if get_arg(0) != "" : chdir get_arg(0)
+if get_arg(0) != "" {
+    if exist_dir(get_arg(0)) == 0 {
+        color_mes "hsptest: error: directory " + get_arg(0) + " is an invalid path", 0, FOREGROUND_RED
+        end -1
+    }
+    chdir get_arg(0)
+}
 dirlist testcodes, "*.hsp", 1
 notesel testcodes
 file_num = notemax
