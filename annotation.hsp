@@ -27,7 +27,7 @@
     annotation_line: アノテーションが書かれてある行の文字列
 */
 #deffunc annotation_parse str annotation_line
-    annotation_str = submatch(annotation_line, ";!\s*(.+)", 0, 0)
+    annotation_str = submatch(annotation_line, ";@\s*(.+)", 0, 0)
     matches annotation_matches, annotation_str, "(\\w+)\\s*=\\s*([\\w-\\.]+)", 0, 0, 1
     repeat stat
         notesel annotation_attr_names
