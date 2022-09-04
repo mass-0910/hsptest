@@ -13,17 +13,34 @@
 #define global BACKGROUND_RED       0x0040 // background color contains red.
 #define global BACKGROUND_INTENSITY 0x0080 // background color is intensified.
 
+/*
+コンソール表示機能の初期化
+*/
 #deffunc console_init
     AllocConsole
     stdout_handle = GetStdHandle(-11)
     return
 
+/*
+コンソールに色付きで文字を出力する
+引数
+    mes_str: 出力する文字列
+    option: mes命令に渡すオプション
+    color_code: Windows APIで定義されているカラーコード
+*/
 #deffunc color_mes str mes_str, int option, int color_code
     SetConsoleTextAttribute stdout_handle, color_code
     mes mes_str, option
     SetConsoleTextAttribute stdout_handle, FOREGROUND_WHITE
     return
 
+/*
+コンソールの中央に表示する文字列を出力する
+引数
+    mes_str: 出力する文字列
+    color_code: Windows APIで定義されているカラーコード
+    fill_char: 空白部分に表示する文字
+*/
 #deffunc centered_mes str mes_str, int color_code, str fill_char
     cw = console_width()
     if int((cw - strlen(mes_str)) / 2) > 0 {
@@ -40,6 +57,13 @@
     mes ""
     return
 
+/*
+コンソールに右詰めで表示する文字列を出力する
+引数
+    mes_str: 出力する文字列
+    color_code: Windows APIで定義されているカラーコード
+    new_line: 右詰め文字列を出力したあとに改行を行う場合trueを渡す
+*/
 #deffunc right_justified_mes str mes_str, int color_code, int newline
     cw = console_width()
     cx = console_x()
@@ -56,16 +80,31 @@
     }
     return
 
+/*
+コンソール画面の文字列幅を取得する
+返り値
+    コンソール画面の文字列幅
+*/
 #defcfunc console_width
     dim csbi, 6
     GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
     return wpeek(csbi, 14)
 
+/*
+コンソールの現在の出力位置のx座標を取得する
+返り値
+    コンソールの現在の出力位置のx座標
+ */
 #defcfunc console_x
     dim csbi, 6
     GetConsoleScreenBufferInfo stdout_handle, varptr(csbi)
     return wpeek(csbi,4)
 
+/*
+コンソールの出力位置のx座標を設定する
+引数
+    x: コンソールの出力位置のx座標
+*/
 #deffunc set_console_x int x
     dim csbi, 6
     pos_buf = 0

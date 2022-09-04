@@ -3,6 +3,9 @@
 
 #module
 
+/*
+アノテーションパーサの初期化を行う
+*/
 #deffunc annotation_init
     annotation_attr_names = {"
     runtime default
@@ -18,6 +21,11 @@
     loop
     return
 
+/*
+アノテーション行をパースする
+引数
+    annotation_line: アノテーションが書かれてある行の文字列
+*/
 #deffunc annotation_parse str annotation_line
     annotation_str = submatch(annotation_line, ";!\s*(.+)", 0, 0)
     matches annotation_matches, annotation_str, "(\\w+)\\s*=\\s*([\\w-\\.]+)", 0, 0, 1
@@ -34,6 +42,13 @@
     loop
     return
 
+/*
+アノテーションに書かれた属性(設定項目)の値を取得する
+引数
+    attr_name: 設定項目名
+返り値
+    設定項目の値
+*/
 #defcfunc get_annotation_attr_val str attr_name
     retval = ""
     notesel annotation_attr_names

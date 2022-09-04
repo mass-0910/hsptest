@@ -9,10 +9,12 @@ stdoutから結果をパースする
     stdout: hspランタイムから出力された文字列
     result: 結果("PASS"または"FAIL")を格納する変数
     error_line: エラーが発生した行数を格納する変数
+    error_file: エラーが発生したファイル名を格納する変数
     error_message: エラーメッセージを格納する変数
+    callstack: コールスタック情報を格納する配列
     removed_stdout: 特殊フォーマット文字列を全て取り除いた標準出力が格納される変数
 */
-#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, var removed_stdout, array callstack
+#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, array callstack, var removed_stdout
     buf = stdout
     result_pattern = "&RESULT&\\{(PASS|FAIL);(-?[0-9]+);([^;]+);(.+)\\}\n"
     callstack_pattern = "&CALLSTACK&\\{([^;]+);([0-9]+);([0-9]+)\\}\n"

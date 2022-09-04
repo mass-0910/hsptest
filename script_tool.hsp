@@ -3,6 +3,12 @@
 
 #module
 
+/*
+引数で渡されたHSP3スクリプトからアノテーション以外のコメントを省いたものを作成する
+引数
+    out_buf: コメントを省いたスクリプトが格納される変数
+    script_buf: 元のスクリプトが格納された変数
+*/
 #deffunc remove_comment var out_buf, var script_buf
     comment_mode = 0 // 0: not comment, 1: one line comment, 2: multiline comment
     sdim buf, varsize(script_buf)

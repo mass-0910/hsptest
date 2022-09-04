@@ -3,6 +3,13 @@
 
 #module
 
+/*
+ログファイル出力モジュールの初期化を行う
+引数
+    hspver_str: HSP3ランタイムのバージョン
+    hsptest_version: hsptestのバージョン
+    testdir_path: テストを行うフォルダへのフルパス
+*/
 #deffunc init_logfile_module str hspver_str, str hsptest_version, str testdir_path
     result_logfile_buf = "[RESULTS]\n"
     detail_logfile_buf = "[FAILED TEST DETAILS]\n"
@@ -15,6 +22,14 @@
     ignored_test_count = 0
     return
 
+/*
+ログ出力を行う際のセパレータヘッダ文字列を返す
+引数
+    log_header: セパレータ内に表示する文字列
+    separator: セパレータに使用する文字
+返り値
+    セパレータヘッダ文字列
+*/
 #defcfunc local get_log_header str log_header, str separator, local buf
     buf = ""
     repeat (100 - strlen(log_header)) / 2
@@ -26,6 +41,13 @@
     loop
     return buf
 
+/*
+テスト結果をログバッファに追加する
+引数
+    file_name: テストのファイル名
+    test_name: テスト名
+    status: テスト結果を示すコード
+*/
 #deffunc append_result_log str file_name, str test_name, int status
     if status == 0 {
         result_logfile_buf += file_name + "::" + test_name + ": PASSED\n"
@@ -39,11 +61,28 @@
     }
     return
 
+/*
+テストからキャプチャされた出力をログバッファに追加する
+引数
+    file_name: テストのファイル名
+    test_name: テスト名
+    stdout: 標準出力文字列
+*/
 #deffunc append_stdout_log str file_name, str test_name, str stdout
     stdout_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
     stdout_logfile_buf += stdout
     return
 
+/*
+失敗テストの詳細をログバッファに追加する
+引数
+    file_name: テストのファイル名
+    test_name: テスト名
+    error_file: エラーが発生したファイル名
+    error_line: エラーが発生した行番号
+    error_detail: エラーメッセージ
+    callstack: コールスタック情報が格納された配列
+*/
 #deffunc append_detail_log str file_name, str test_name, str error_file, int error_line, str error_detail, array callstack
     detail_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
     if error_line == -1 {
@@ -91,6 +130,11 @@
     }
     return
 
+/*
+ログファイルに書き込む文字列を取得する
+返り値
+    ログファイルに書き込む文字列
+*/
 #defcfunc get_logfile_str local buf
     buf = "ran on HSP " + hspver_str_ + ", hsptest " + hsptest_version_ + "\n\n"
     buf += "test_dir: " + testdir_path_ + "\n\npassed: " + passed_test_count + "\nfailed: " + failed_test_count + "\n\n\n"
@@ -101,6 +145,11 @@
     buf += get_log_header("", "=")
     return buf
 
+/*
+ログファイルを作成する
+引数
+    logfile_path: ログファイルへのパス
+*/
 #deffunc make_logfile str logfile_path, local buf
     buf = get_logfile_str()
     notesel buf

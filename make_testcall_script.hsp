@@ -56,8 +56,9 @@
 引数
     testfile_name: スクリプト内でincludeされるテストスクリプト名
     testlabel_name: スクリプト内でincludeされるテストサブルーチンラベル名
+    runtime_name: スクリプトを実行するランタイム名
 返り値
-    str: テストスクリプトが保存されたファイルへのパス
+    テストスクリプトが保存されたファイルへのパス
  */
 #defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name
     temp_test_name = "__testtmp.hsp"
