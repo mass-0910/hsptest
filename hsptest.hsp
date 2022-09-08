@@ -107,7 +107,7 @@ repeat file_num
     if strlen(match(file_name, "test")) == 0 : continue
     notesel testcode_buf
     noteload file_name
-    remove_comment tmp, testcode_buf
+    remove_unused_data tmp, testcode_buf
     testcode_buf = tmp
     repeat
         matches label_match, testcode_buf, label_pattern, 0, 1, 0
@@ -144,7 +144,7 @@ repeat file_num
 
     notesel testcode_buf
     noteload file_name
-    remove_comment tmp, testcode_buf
+    remove_unused_data tmp, testcode_buf
     testcode_buf = tmp
 
     if is_exist_option("--verbose") == 0 : mes file_name + " ", 1
