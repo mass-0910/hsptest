@@ -39,6 +39,7 @@ options = {"
 -l --logfile 1
 -h --help 0
 -r --runtime 1
+--stop --stop 0
 --version --version 0
 "}
 parse_args 1, options, dir_cmdline
@@ -55,6 +56,7 @@ if is_exist_option("--help") {
     mes "  -s, --stdout           display captured stdout while test"
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
     mes "  -r, --runtime RUNTIME  specify runtime to run tests"
+    mes "  --stop                 stop when exit hsptest"
     mes "  -h, --help             show this help message"
     mes "  --version              show hsptest version"
     end
@@ -355,4 +357,8 @@ if test_pass == 0 && test_fail == 0 {
     }
 }
 
+if (is_exist_option("--stop")) {
+    mes "Press Enter to stop..."
+    input a, , 1
+}
 end test_fail
