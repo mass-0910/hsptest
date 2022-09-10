@@ -109,8 +109,7 @@
     callstack_exist = 0
     repeat length(callstack)
         if callstack(cnt + 1) == "" : break
-        split callstack(cnt), " ", f, l
-        callstack_str = "File \"" + f + "\", line " + l + "\n" + callstack_str
+        split callstack(cnt), ";", f, l
         exist f
         if strsize != -1 {
             notesel b
@@ -118,10 +117,11 @@
             noteget lb, int(l) - 1
             lb = strtrim(lb, , ' ')
             lb = strtrim(lb, , '\t')
-            callstack_str += "  " + lb + "\n"
+            callstack_str = "  " + lb + "\n" + callstack_str
         } else {
-            callstack_str += "  ** File" + f + " not found **\n"
+            callstack_str = "  ** File" + f + " not found **\n" + callstack_str
         }
+        callstack_str = "File \"" + f + "\", line " + l + "\n" + callstack_str
         callstack_exist = 1
     loop
     if callstack_exist {

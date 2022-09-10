@@ -20,7 +20,7 @@
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-version = "0.7"
+version = "0.8"
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -39,6 +39,7 @@ options = {"
 -l --logfile 1
 -h --help 0
 -r --runtime 1
+--stop --stop 0
 --version --version 0
 "}
 parse_args 1, options, dir_cmdline
@@ -55,6 +56,7 @@ if is_exist_option("--help") {
     mes "  -s, --stdout           display captured stdout while test"
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
     mes "  -r, --runtime RUNTIME  specify runtime to run tests"
+    mes "  --stop                 stop when exit hsptest"
     mes "  -h, --help             show this help message"
     mes "  --version              show hsptest version"
     end
@@ -107,7 +109,7 @@ repeat file_num
     if strlen(match(file_name, "test")) == 0 : continue
     notesel testcode_buf
     noteload file_name
-    remove_comment tmp, testcode_buf
+    remove_unused_data tmp, testcode_buf
     testcode_buf = tmp
     repeat
         matches label_match, testcode_buf, label_pattern, 0, 1, 0
@@ -144,7 +146,7 @@ repeat file_num
 
     notesel testcode_buf
     noteload file_name
-    remove_comment tmp, testcode_buf
+    remove_unused_data tmp, testcode_buf
     testcode_buf = tmp
 
     if is_exist_option("--verbose") == 0 : mes file_name + " ", 1
@@ -355,4 +357,8 @@ if test_pass == 0 && test_fail == 0 {
     }
 }
 
+if (is_exist_option("--stop")) {
+    mes "Press Enter to stop..."
+    input a, , 1
+}
 end test_fail
