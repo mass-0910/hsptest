@@ -8,6 +8,7 @@
 #include "hspcmp.as"
 #include "kernel32.as"
 #include "mod_regexp.as"
+#include "hspinet.as"
 #include "result_format.as"
 #include "argparse.hsp"
 #include "make_testcall_script.hsp"
@@ -37,6 +38,7 @@ options = {"
 -v --verbose 0
 -s --stdout 0
 -l --logfile 1
+--openlog --openlog 0
 -h --help 0
 -r --runtime 1
 --stop --stop 0
@@ -57,6 +59,7 @@ if is_exist_option("--help") {
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
     mes "  -r, --runtime RUNTIME  specify runtime to run tests"
     mes "  --stop                 stop when exit hsptest"
+    mes "  --openlog              open log file with hsed3"
     mes "  -h, --help             show this help message"
     mes "  --version              show hsptest version"
     end
@@ -318,9 +321,8 @@ if is_exist_option("--stdout") {
 spend_time = strf("%.2f", double(timeGetTime() - start_time) / 1000.0)
 
 mes ""
-if is_exist_option("--logfile") {
+if is_exist_option("--logfile") || is_exist_option("--openlog") {
     init_logfile_module hspver_str, version, dir_cur
-    logfile_path = get_option_arg("--logfile")
     repeat all_test_num
         append_result_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_result(cnt)
         if stdout_buf(cnt) != "" : append_stdout_log stdout_file_name(cnt), stdout_test_name(cnt), stdout_buf(cnt)
@@ -333,8 +335,21 @@ if is_exist_option("--logfile") {
         if stdout_result(cnt) == 1 : append_detail_log stdout_file_name(cnt), stdout_test_name(cnt), error_file_buf(cnt), error_line_buf(cnt), error_detail_buf(cnt), callstack
     loop
     chdir first_cwd
-    make_logfile logfile_path
-    mes "output the log file to " + dir_cur + "\\" + logfile_path
+    if is_exist_option("--logfile") {
+        logfile_path = get_option_arg("--logfile")
+        make_logfile logfile_path
+        mes "output the log file to " + dir_cur + "\\" + logfile_path
+    }
+    if is_exist_option("--logfile") && is_exist_option("--openlog") {
+        exec "hsed3 " + dir_cur + "\\" + logfile_path
+    } else : if is_exist_option("--logfile") == 0 && is_exist_option("--openlog") {
+        getenv tempdir, "TEMP"
+        if exist_dir(tempdir + "\\hsptest_log") == 0 {
+            mkdir tempdir + "\\hsptest_log"
+        }
+        make_logfile tempdir + "\\hsptest_log\\log.log"
+        exec "hsed3 " + tempdir + "\\hsptest_log\\log.log"
+    }
 }
 
 if test_pass == 0 && test_fail == 0 {
