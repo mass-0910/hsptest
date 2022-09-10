@@ -344,7 +344,9 @@ if is_exist_option("--logfile") || is_exist_option("--openlog") {
         exec "hsed3 " + dir_cur + "\\" + logfile_path
     } else : if is_exist_option("--logfile") == 0 && is_exist_option("--openlog") {
         getenv tempdir, "TEMP"
-        mkdir tempdir + "\\hsptest_log"
+        if exist_dir(tempdir + "\\hsptest_log") == 0 {
+            mkdir tempdir + "\\hsptest_log"
+        }
         make_logfile tempdir + "\\hsptest_log\\log.log"
         exec "hsed3 " + tempdir + "\\hsptest_log\\log.log"
     }

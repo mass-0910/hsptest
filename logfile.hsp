@@ -119,7 +119,7 @@
             lb = strtrim(lb, , '\t')
             callstack_str = "  " + lb + "\n" + callstack_str
         } else {
-            callstack_str = "  ** File" + f + " not found **\n" + callstack_str
+            callstack_str = "  ** File " + f + " not found **\n" + callstack_str
         }
         callstack_str = "File \"" + f + "\", line " + l + "\n" + callstack_str
         callstack_exist = 1

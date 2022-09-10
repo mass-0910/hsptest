@@ -36,7 +36,7 @@ stdoutから結果をパースする
     matched_num = stat
     buf = replace(buf, callstack_pattern, "", 1)
     repeat matched_num
-        callstack(int(callstack_match(cnt, 3))) = callstack_match(cnt, 1) + " " + callstack_match(cnt, 2)
+        callstack(int(callstack_match(cnt, 3))) = callstack_match(cnt, 1) + ";" + callstack_match(cnt, 2)
     loop
     removed_stdout = buf
     return
