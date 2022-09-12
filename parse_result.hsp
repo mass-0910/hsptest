@@ -14,10 +14,11 @@ stdoutから結果をパースする
     callstack: コールスタック情報を格納する配列
     removed_stdout: 特殊フォーマット文字列を全て取り除いた標準出力が格納される変数
 */
-#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, array callstack, var removed_stdout
+#deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, array callstack, array coverage, var removed_stdout
     buf = stdout
     result_pattern = "&RESULT&\\{(PASS|FAIL);(-?[0-9]+);([^;]+);(.+)\\}\n"
     callstack_pattern = "&CALLSTACK&\\{([^;]+);([0-9]+);([0-9]+)\\}\n"
+    coverage_pattern = "&COVERAGE&\\{([^;]+);([0-9]+);([01]);([01])\\}\n"
     matches result_match, stdout, result_pattern, 1, 1, 0
     matched_num = stat
     buf = replace(buf, result_pattern, "", 1)
@@ -34,9 +35,17 @@ stdoutから結果をパースする
     }
     matches callstack_match, stdout, callstack_pattern, 1, 0, 0
     matched_num = stat
+    sdim callstack, 64, matched_num
     buf = replace(buf, callstack_pattern, "", 1)
     repeat matched_num
         callstack(int(callstack_match(cnt, 3))) = callstack_match(cnt, 1) + ";" + callstack_match(cnt, 2)
+    loop
+    matches coverage_match, stdout, coverage_pattern, 1, 0, 0
+    matched_num = stat
+    sdim coverage, 100, matched_num
+    buf = replace(buf, coverage_pattern, "", 1)
+    repeat matched_num
+        coverage(cnt) = coverage_match(cnt, 1) + ";" + coverage_match(cnt, 2) + ";" + coverage_match(cnt, 3) + ";" + coverage_match(cnt, 4)
     loop
     removed_stdout = buf
     return

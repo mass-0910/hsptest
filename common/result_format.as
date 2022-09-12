@@ -34,6 +34,20 @@
 #defcfunc get_callstack_format str file_name, int file_line, int depth
     return "&CALLSTACK&{" + file_name + ";" + file_line + ";" + depth + "}"
 
+/*
+テストカバレッジのstdout文字列を返す
+引数
+    file_name: ファイル名
+    file_line: ファイル行番号
+    coverage_type: カバレッジの種類(C0なら0、C1なら1を渡す)
+*/
+#defcfunc get_coverage_format str file_name, int file_line, int coverage_type, int passed
+    if coverage_type == 0 {
+        return "&COVERAGE&{" + file_name + ";" + file_line + ";" + coverage_type + ";0}"
+    } else {
+        return "&COVERAGE&{" + file_name + ";" + file_line + ";" + coverage_type + ";" + passed + "}"
+    }
+
 #global
 
 #endif

@@ -71,7 +71,7 @@
     noteunsel
     return
 
-#deffunc local copy_file_used_in_test local file_num, local script_path_list, local index_buf
+#deffunc local copy_file_used_in_test array mod_coverage_array, local file_num, local script_path_list, local index_buf
     // インクルードファイルパス一覧用のバッファを準備
     sdim script_path_list, 260, 512
     index_buf = 0
@@ -133,8 +133,7 @@
 返り値
     テストスクリプトが保存されたファイルへのパス
  */
-#defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name
-    // 一時ディレクトリを作成
+#defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name, array cov_file_all_lines
     temp_test_env_dir = "__tmpenv"
     mkdir temp_test_env_dir
     cur_dir_in_temp_dir = dir_cur + "\\" + temp_test_env_dir + "\\" + none_drive_letter(dir_cur)

@@ -28,6 +28,68 @@
 #defcfunc is_space int ch
     return ch == ' ' || ch == '\t'
 
+#defcfunc is_entry_inst str line_str
+    index = 0
+    init_status = 1
+    line_str_buf = line_str
+    status = init_status
+    result = SUCCESS
+    entry_inst = "deffunc defcfunc modfunc modcfunc modinit modterm"
+    split entry_inst, " ", entry_inst_list
+    repeat
+        ch = peek(line_str_buf, index)
+        if status == 1 {
+            if ch == '*' {
+                status = 2
+            } else : if ch == '#' {
+                status = 6
+            } else : if is_space(ch) {
+                status = 1
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 2 {
+            if is_name_alphabet(ch) {
+                status = 3
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 3 {
+            if is_name_alphabet(ch) {
+                status = 3
+            } else : if is_space(ch) {
+                status = 4
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 4 {
+            if is_space(ch) == 0 {
+                result = FAILURE
+            }
+        } else : if status == 6 {
+            repeat length(entry_inst_list)
+                if instr(line_str_buf, index, entry_inst_list(cnt)) == 0 {
+                    status = 7
+                    index += strlen(entry_inst_list(cnt)) - 1
+                    break
+                }
+            loop
+            if status == 6 : result = FAILURE
+        } else : if status == 7 {
+            if is_space(ch) {
+                status = 8
+            } else {
+                result = FAILURE
+            }
+        } else : if status == 8 {
+            // success
+        }
+        if result == FAILURE : break
+        index++
+        if index >= strlen(line_str_buf) : break
+    loop
+    return result
+
 /*
 引数の行文字列がHSP3におけるマルチラインコードかどうかを判定する
 引数
@@ -54,30 +116,58 @@
 引数
     src_file_path: コピー元スクリプトへのパス
     dest_file_path: コピー先スクリプトへのパス
+    collect_coverage: テストカバレッジを取得するためのコードを挿入する場合はtrueを渡す
+    cov_all_lines: スクリプトのカバレッジ計測行すべてが格納された配列を返すための変数
 */
-#deffunc copy_with_edit str src_file_path, str dest_file_path
+#deffunc copy_with_edit str src_file_path, str dest_file_path, int collect_coverage, array cov_all_lines
     notesel buf
     noteload src_file_path
+    a = make_copy_buf(buf, src_file_path, 1, collect_coverage, cov_all_lines)
+    notesave dest_file_path
+    noteunsel
+    return
+
+#defcfunc get_coverage_line_count var src_buf
+    return make_copy_buf(src_buf, "", 0, 1, dummy)
+
+#defcfunc local make_copy_buf var src_buf, str src_file_path, int mode_add, int collect_coverage, array cov_all_lines, local ignore_multiline_str, local ignore_multiline_inst, local file_line_num, local read_buf, local retval, local cov_all_lines_index, local writing_index
+    notesel src_buf
     file_line_num = notemax
-    reading_index = 0
-    ignore_multiline_str = 0
-    ignore_multiline_inst = 0
-    repeat
-        notesel buf
-        ; if cnt >= notemax : break
-        if cnt > file_line_num : break
-        noteget l, reading_index
-        reading_index++
-        if ignore_multiline_str == 0 && ignore_multiline_inst == 0{
-            if reading_index - 1 >= notemax {
-                p = -1
-            } else {
-                p = reading_index - 1
-            }
-            now_line_num = cnt + 1
-            noteadd "__errfile@(sublev) = __file__ : __errline@(sublev) = " + now_line_num + " : __sublev@ = sublev", p
-            reading_index++
+    noteunsel
+    retval = 0
+    remove_unused_data read_buf, src_buf
+    if mode_add {
+        if collect_coverage {
+            dim cov_all_lines, get_coverage_line_count(read_buf)
+            cov_all_lines_index = 0
         }
+    }
+    writing_index = 0
+    ignore_multiline_inst = 0
+    repeat file_line_num
+        notesel read_buf
+        noteget l, cnt
+        noteunsel
+        if is_entry_inst(l) == 0 && match(l, "[\t ]*") != "" && ignore_multiline_str == 0 && ignore_multiline_inst == 0{
+            if mode_add {
+                now_line_num = cnt + 1
+                notesel src_buf
+                noteadd "__errfile@(sublev) = __file__ : __errline@(sublev) = " + now_line_num + " : __sublev@ = sublev", writing_index
+                writing_index++
+                // カバレッジを測定する場合、C0カバレッジ情報を出力するコードを挿入する
+                if collect_coverage && is_entry_inst(l) == 0 && match(l, "[\t ]*") != "" {
+                    noteadd "WriteFile __stdout_handle, get_coverage_format(\"" + src_file_path + "\", " + now_line_num + ", 0, 0) + \"\\n\", strlen(get_coverage_format(\"" + src_file_path + "\", " + now_line_num + ", 0, 0) + \"\\n\"), 0, 0", writing_index
+                    cov_all_lines(cov_all_lines_index) = now_line_num
+                    cov_all_lines_index++
+                    writing_index++
+                }
+                noteunsel
+            } else {
+                retval++
+            }
+        }
+        if mode_add : writing_index++
+        ignore_multiline_str = 0
         ignore_multiline_inst = 0
         // マルチライン文字列には挿入しない
         if ignore_multiline_str == 0 && instr(l, 0, "{\"") != -1 && instr(l, 0, "\"}") == -1 {
@@ -90,9 +180,7 @@
             ignore_multiline_inst = 1
         }
     loop
-    notesel buf
-    notesave dest_file_path
-    return
+    return retval
 
 #global
 

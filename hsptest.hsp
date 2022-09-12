@@ -14,8 +14,10 @@
 #include "hspext.as"
 #include "hspcmp.as"
 #include "kernel32.as"
+#include "winmm.as"
 #include "mod_regexp.as"
 #include "hspinet.as"
+#include "coverage.hsp"
 #include "result_format.as"
 #include "argparse.hsp"
 #include "make_testcall_script.hsp"
@@ -25,8 +27,11 @@
 #include "util.hsp"
 #include "annotation.hsp"
 #include "script_tool.hsp"
+<<<<<<< HEAD
 
 #define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
+=======
+>>>>>>> fff15ba (C0カバレッジ測定機能を追加)
 
 version = "0.8"
 
@@ -48,6 +53,7 @@ options = {"
 --openlog --openlog 0
 -h --help 0
 -r --runtime 1
+-c --coverage 0
 --stop --stop 0
 --version --version 0
 "}
@@ -68,6 +74,7 @@ if is_exist_option("--help") {
     mes "  -s, --stdout           display captured stdout while test"
     mes "  -l, --logfile LOGPATH  write the log file to LOGPATH"
     mes "  -r, --runtime RUNTIME  specify runtime to run tests"
+    mes "  -c, --coverage         measure coverage and output report"
     mes "  --stop                 stop when exit hsptest"
     mes "  --openlog              open log file with hsed3"
     mes "  -h, --help             show this help message"
@@ -255,7 +262,7 @@ repeat file_num
         }
 
         // make temporary testcall script
-        temptest_path = make_temp_test(file_name, label_name, runtime_name)
+        temptest_path = make_temp_test(file_name, label_name, runtime_name, coverage_file_array)
 
         // compile test
         before_compipe_cwd = dir_cur
@@ -314,18 +321,30 @@ repeat file_num
         CloseHandle runtime_stdout_handle_rd
 
         // collect result
-        sdim callstack, 64, 1024
-        parse_result_format stdout, result, errline, errfile, errdetail, callstack, stdout
+        parse_result_format stdout, result, errline, errfile, errdetail, callstack, coverage, stdout
         stdout_buf(test_num) = stdout
         stdout_file_name(test_num) = file_name
         stdout_test_name(test_num) = test_name
         error_file_buf(test_num) = errfile
         error_line_buf(test_num) = int(errline)
         error_detail_buf(test_num) = errdetail
-        repeat 1024
+        repeat length(callstack)
             if callstack(cnt) == "" : break
             callstack_buf(cnt, test_num) = callstack(cnt)
         loop
+
+        // calculate coverage
+        if is_exist_option("--coverage") {
+            repeat length(coverage)
+                split coverage(cnt), ";", covfile, covline, covtype, covpassed
+                repeat length(coverage_file_array)
+                    if get_coverage_file_path(coverage_file_array(cnt)) == covfile && covtype == "0" {
+                        add_passed_C0_line coverage_file_array(cnt), int(covline)
+                        break
+                    }
+                loop
+            loop
+        }
 
         // output result
         test_num++
@@ -361,6 +380,25 @@ repeat file_num
     loop
     if is_exist_option("--verbose") == 0 : mes ""
 loop
+
+// check coverage
+if is_exist_option("--coverage") {
+    centered_mes " coverage ", FOREGROUND_WHITE, "-"
+    mes "Name                          Stmts   Miss  Cover"
+    mes "-------------------------------------------------"
+    repeat length(coverage_file_array)
+        mes strf("%-30.30s", get_coverage_file_path(coverage_file_array(cnt))), 1
+        get_all_C0_line coverage_file_array(cnt), all_C0_line
+        get_passed_C0_line coverage_file_array(cnt), passed_C0_line
+        ccnt = cnt
+        stmts = 0
+        repeat length(passed_C0_line)
+            if passed_C0_line(cnt) : stmts++
+        loop
+        mes strf("%5d%7d%6.1f%%", stmts, length(all_C0_line) - stmts, get_coverage_C0_percentage(coverage_file_array(cnt)) * 100.0)
+    loop
+    mes "-------------------------------------------------"
+}
 
 if is_exist_option("--stdout") {
     stdout_exist = 0

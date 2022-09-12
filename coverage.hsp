@@ -1,0 +1,63 @@
+#ifndef coverage_hsp_included
+#define coverage_hsp_included
+
+#module mod_coverage _file_path, _all_C0_line, _C0_line_index, _all_C1_line, _passed_C0_line
+
+#modinit str file_path
+    _file_path = file_path
+    notesel tmpbuf
+    noteload file_path
+    C0_line_count = get_coverage_line_count@(tmpbuf)
+    dim _all_C0_line, C0_line_count
+    memset _all_C0_line, 0xFF, C0_line_count * 4
+    dim _passed_C0_line, C0_line_count
+    _C0_line_index = 0
+    return
+
+#modfunc add_C0_line int line_num
+    _all_C0_line(_C0_line_index) = line_num
+    _C0_line_index++
+    return
+
+#modfunc add_passed_C0_line int line_num
+    repeat length(_all_C0_line)
+        if _all_C0_line(cnt) == line_num {
+            _passed_C0_line(cnt) = 1
+            break
+        }
+    loop
+    return
+
+#modcfunc is_C0_passed_line int line_num
+    retval = 0
+    repeat length(_all_C0_line)
+        if _all_C0_line(cnt) == line_num {
+            retval = _passed_C0_line(cnt)
+            break
+        }
+    loop
+    return retval
+
+#modfunc get_all_C0_line array out_array
+    dim out_array, length(_all_C0_line)
+    memcpy out_array, _all_C0_line, length(_all_C0_line) * 4
+    return
+
+#modfunc get_passed_C0_line array out_array
+    dim out_array, length(_passed_C0_line)
+    memcpy out_array, _passed_C0_line, length(_passed_C0_line) * 4
+    return
+
+#modcfunc get_coverage_C0_percentage
+    passed_line = 0
+    repeat length(_passed_C0_line)
+        if _passed_C0_line(cnt) : passed_line++
+    loop
+    return double(passed_line) / double(length(_all_C0_line))
+
+#modcfunc get_coverage_file_path
+    return _file_path
+
+#global
+
+#endif
