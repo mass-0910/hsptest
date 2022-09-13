@@ -1,4 +1,7 @@
 #include "../append_data.hsp"
+#include "../script_tool.hsp"
+#include "../append_data.hsp"
+#include "mod_regexp.as"
 #include "assertion.as"
 
 *test1
@@ -9,6 +12,7 @@
     assertFalse is_multi_line("abc\\def")
     return
 
+;@ timeout=3
 *test3
-    copy_with_edit "data/appended_script", "../../tmp"
+    copy_with_edit "data/appended_script", "../../tmp", 0, dummy
     return
