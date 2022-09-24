@@ -167,7 +167,6 @@
             }
         }
         if mode_add : writing_index++
-        ignore_multiline_str = 0
         ignore_multiline_inst = 0
         // マルチライン文字列には挿入しない
         if ignore_multiline_str == 0 && instr(l, 0, "{\"") != -1 && instr(l, 0, "\"}") == -1 {
