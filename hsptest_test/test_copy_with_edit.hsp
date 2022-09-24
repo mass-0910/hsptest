@@ -14,5 +14,6 @@
 
 ;@ timeout=3
 *test3
+    _startregexp
     copy_with_edit "data/appended_script", "../../tmp", 0, dummy
     return
