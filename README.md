@@ -6,18 +6,38 @@ HSP3言語で書かれたプログラムをテストするためのフレーム�
 
 ## インストール
 
-以下の手順でhsptestをインストールすることができます。
+hsptestを使用する手段によって、以下の2通りのインストール方法があります。
+1. バッチファイル(`run_hsptest.bat`)からhsptestを実行する場合
+2. コマンドラインからhsptestを実行する場合
 
-1. HSP3をインストールします
-2. HSP3インストールフォルダ(例：`C:/hsp36`)を環境変数PATHに追加します
-3. [Releases](https://github.com/mass-0910/hsptest/releases/latest)からhsptest.zipをダウンロードします
-4. hsptest.zipを解凍し、中に含まれているファイルを以下のように移動してください
-   |移動するファイル|移動先フォルダ|
-   |---|---|
-   |`hsptest.exe`|HSP3インストールフォルダ直下 (例：`C:\hsp36`)|
-   |`common`内の全ての`.as`ファイル|HSP3インストールフォルダの`common`フォルダ (例：`C:\hsp36\common`)|
+### バッチファイル(`run_hsptest.bat`)からhsptestを実行する場合
 
-## 使い方
+起動用のバッチファイルからhsptestを実行する場合は、以下の手順でインストールしてください。
+
+1. [Releases](https://github.com/mass-0910/hsptest/releases/latest)からhsptest.zipをダウンロードします
+2. hsptest.zipを解凍し、中に含まれる`install.bat`を実行します。
+3. 以下の画像のように、`run_hsptest.bat`ファイルをテストスクリプトが格納されたフォルダに移動させます
+
+![run_hsptest](https://github.com/mass-0910/hsptest/assets/53329734/7f256589-39dc-448a-a5a8-6c67be9ac7c8)
+
+### コマンドラインからhsptestを実行する場合
+
+hsptestをコマンドラインからhsptestを実行する場合は、以下の手順でインストールしてください。
+
+1. HSP3インストールフォルダ(例：`C:/hsp36`)を環境変数PATHに追加します
+2. [Releases](https://github.com/mass-0910/hsptest/releases/latest)からhsptest.zipをダウンロードします
+3. hsptest.zipを解凍し、中に含まれる`install.bat`を実行します。
+
+## バッチファイル(`run_hsptest.bat`)の使い方
+
+`run_hsptest.bat`をエクスプローラからダブルクリックすることで、hsptestの実行が開始します。  
+コマンドプロンプト起動し、テストスクリプトを実行した結果が表示されます。
+
+また、hsptest_log.txtというファイルが生成され、その中にテストのログが出力されます。
+
+コマンドラインからhsptestを実行する場合、`run_hsptest.bat`は使用しません。
+
+## コマンドラインからの使い方
 
 以下のコマンドでhsptestを実行できます。
 
@@ -25,7 +45,7 @@ HSP3言語で書かれたプログラムをテストするためのフレーム�
 hsptest
 ```
 
-hsptestは、カレントディレクトリに置かれている`test`を名前に含む`.hsp`スクリプトファイルをテストスクリプトとして認識し、それらを実行します。テストスクリプトが別のフォルダに置かれてある場合は、そのフォルダを引数で指定することができます。
+テストスクリプトが別のフォルダに置かれてある場合は、そのフォルダを引数で指定することができます。
 
 ```
 hsptest path/to/testfolder
@@ -48,6 +68,7 @@ hsptestを実行する際に以下のオプションを指定できます。
 
 ## テストスクリプトの書き方
 
+hsptestは、`test`を名前に含むHSPスクリプトファイルをテストスクリプトとして認識し、それらを実行します。  
 hsptestで実行されるテストは、テスト一つに対して一つのサブルーチンで記述する必要があります。テストサブルーチンのラベル名は、`*test`から始まるものである必要があります。以下の例のようにテストスクリプトを記述してください。
 
 ```
