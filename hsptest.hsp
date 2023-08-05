@@ -21,7 +21,7 @@
 #uselib "winmm.dll"
 #cfunc timeGetTime "timeGetTime"
 
-version = "0.8"
+version = "0.7.1"
 
 sdim stdout, 2000
 sdim ln, 2000
