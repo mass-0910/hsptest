@@ -6,3 +6,4 @@ packfile
 *.dll
 *tmp*
 *.log
+build/
