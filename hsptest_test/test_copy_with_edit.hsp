@@ -1,4 +1,4 @@
-#include "append_data.hsp"
+#include "../append_data.hsp"
 #include "assertion.as"
 
 *test1
