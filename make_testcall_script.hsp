@@ -27,12 +27,6 @@
     return
 
 #deffunc local fetch_included_files_recursive str hsp_source_file_path, array included_source_list, var included_source_list_index, local escaped_cwd, local file_content_buf, local file_line_count, local file_line, local include_file, local include_file_abs
-    escaped_cwd = dir_cur
-    target_chdir = getpath(hsp_source_file_path, 32)
-    if target_chdir != "" {
-        chdir target_chdir
-    }
-
     // ソースファイルをロード
     notesel file_content_buf
     noteload hsp_source_file_path
@@ -73,7 +67,8 @@
         // インクルードファイル内のインクルードファイルを検索
         fetch_included_files_recursive include_file_abs, included_source_list, included_source_list_index
     loop
-    chdir escaped_cwd
+    ; chdir escaped_cwd
+    noteunsel
     return
 
 #deffunc local copy_file_used_in_test local file_num, local script_path_list, local index_buf
