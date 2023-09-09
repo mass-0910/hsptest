@@ -217,11 +217,14 @@ repeat file_num
         temptest_path = make_temp_test(file_name, label_name, runtime_name)
 
         // compile test
+        before_compipe_cwd = dir_cur
+        chdir getpath(temptest_path, 32)
         hsc_ini temptest_path
         hsc_compath dir_exe + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
+        chdir before_compipe_cwd
         if instr(stdout, 0, "#No error detected.") == -1 {
             strrep stdout, "\n", "\nhspcmp:"
             mes test_name + "@" + file_name + ": FAIL: compile error"
