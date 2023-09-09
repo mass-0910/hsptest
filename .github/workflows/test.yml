@@ -41,9 +41,9 @@ jobs:
         shell: pwsh
         run: |
           hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
+          cp common/* C:/hsp36/common/
           hsp3cl compile.ax
           cp hsptest.exe C:/hsp36/
-          cp common/* C:/hsp36/common/
 
       - name: test
         shell: pwsh
