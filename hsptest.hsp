@@ -3,8 +3,6 @@
 #packopt orgpath 1
 #packopt version "VERSION"
 
-#uselib "winmm.dll"
-#cfunc timeGetTime "timeGetTime"
 #uselib "shlwapi.dll"
 #cfunc global PathIsRelativeA "PathIsRelativeA" sptr
 #cfunc global PathRelativePathToA "PathRelativePathToA" sptr, sptr, sptr, sptr, sptr
@@ -27,11 +25,8 @@
 #include "util.hsp"
 #include "annotation.hsp"
 #include "script_tool.hsp"
-<<<<<<< HEAD
 
 #define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
-=======
->>>>>>> fff15ba (C0カバレッジ測定機能を追加)
 
 version = "0.8"
 
