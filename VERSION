@@ -1,6 +1,6 @@
 # encoing Shift-JIS
-_PRODUCTVERSION=0.7.1
+_PRODUCTVERSION=0.8
 Comments=HSP3テストフレームワーク
 FileDescription=HSP3テストフレームワーク実行ファイル
-LegalCopyright=(c)2022 mass-0910
+LegalCopyright=(c)2023 mass-0910
 ProductName=hsptest
