@@ -20,7 +20,7 @@
 	mes "Compiling..."+fname
 
 	objname="start.ax"		; output object file
-	cmpmode=0
+	cmpmode=1
 	ppmode=4
 
 	hsc_ini srcname+".hsp"

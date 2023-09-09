@@ -2,6 +2,12 @@
 #packopt name "hsptest"
 #packopt orgpath 1
 #packopt version "VERSION"
+
+#uselib "winmm.dll"
+#cfunc timeGetTime "timeGetTime"
+#uselib "shlwapi.dll"
+#cfunc global PathIsRelativeA "PathIsRelativeA" sptr
+
 #include "hspdef.as"
 #include "exception_code.as"
 #include "hspext.as"
@@ -18,8 +24,8 @@
 #include "util.hsp"
 #include "annotation.hsp"
 #include "script_tool.hsp"
-#uselib "winmm.dll"
-#cfunc timeGetTime "timeGetTime"
+
+#define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
 
 version = "0.8"
 
@@ -45,6 +51,9 @@ options = {"
 --version --version 0
 "}
 parse_args 1, options, dir_cmdline
+
+// for debug
+onerror goto *hsptest_error
 
 // show usage
 if is_exist_option("--help") {
@@ -222,6 +231,13 @@ repeat file_num
             continue
         }
 
+        // copy executable ax file to test directory
+        ax_file_path_in_temp_dir = getpath(temptest_path, 1) + ".ax"
+        bcopy ax_file_path_in_temp_dir, HSPTEST_TESTCALL_AX_NAME
+
+        // delete temp dir
+        delete_temp_test
+
         // execute test
         dim process_info, 4
         dim sa_attr, 3
@@ -230,7 +246,7 @@ repeat file_num
         CreatePipe varptr(runtime_stdout_handle_rd), varptr(runtime_stdout_handle_wr), varptr(sa_attr), 0
         dim startup_info, 17
         startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
-        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax", 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + HSPTEST_TESTCALL_AX_NAME, 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
         CloseHandle runtime_stdout_handle_wr
         if double(get_annotation_attr_val("timeout")) <= 0.0 {
             timeout = 0xFFFFFFFF
@@ -296,8 +312,8 @@ repeat file_num
             stdout_result(test_num - 1) = 1
         }
 
-        // delete temporary testcall script
-        delete_temp_test
+        // delete temporary testcall ax file
+        delete HSPTEST_TESTCALL_AX_NAME
     loop
     if is_exist_option("--verbose") == 0 : mes ""
 loop
@@ -377,3 +393,8 @@ if (is_exist_option("--stop")) {
     input a, , 1
 }
 end test_fail
+
+*hsptest_error
+    mes "[internal error hsptest]"
+    mes "hsptest_error(" + wparam + "): " + errmsg(wparam) + " in line " + lparam
+    end wparam
