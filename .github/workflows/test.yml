@@ -33,10 +33,13 @@ jobs:
         if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
         run: 7z x hsp36en.zip -oC:/
 
+      - name: add hsp36 to path
+        shell: pwsh
+        run: echo "C:/hsp36" >> $env:GITHUB_PATH
+
       - name: compile and install hsptest
         shell: cmd
         run: |
-          echo "C:/hsp36" >> %GITHUB_PATH%
           hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
           hsp3cl compile.ax
           echo | call install.bat
@@ -44,5 +47,4 @@ jobs:
       - name: test
         shell: pwsh
         run: |
-          echo "C:/hsp36" >> $env:GITHUB_PATH
           hsptest -v -s hsptest_test
