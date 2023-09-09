@@ -38,11 +38,12 @@ jobs:
         run: echo "C:/hsp36" >> $env:GITHUB_PATH
 
       - name: compile and install hsptest
-        shell: cmd
+        shell: pwsh
         run: |
           hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
           hsp3cl compile.ax
-          echo | call install.bat
+          cp hsptest.exe C:/hsp36/
+          cp common/* C:/hsp36/common/
 
       - name: test
         shell: pwsh
