@@ -135,6 +135,14 @@
     return argument_value(arg)
 
 /*
+引数の数（オプションを除く）を返す
+返り値
+    引数の数
+*/
+#defcfunc get_arg_num
+    return detected_args
+
+/*
 オプションがコマンドライン引数内に存在しているかを判定する
 引数
     arg_name: オプション名
