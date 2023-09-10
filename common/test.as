@@ -16,7 +16,7 @@ goto *__test_as_end
     return
 
 *__error
-    __output_buf = get_fail_result_format(__errline@(__sublev@), __errfile@(__sublev@), errmsg(wparam - 1)) + "\n"
+    __output_buf = get_fail_result_format(__errline@(__sublev@), __errfile@(__sublev@), errmsg(wparam)) + "\n"
     WriteFile __stdout_handle, __output_buf, strlen(__output_buf), 0, 0
     repeat __sublev@
         __output_buf = get_callstack_format(__errfile@(cnt + 1), __errline@(cnt + 1), cnt) + "\n"

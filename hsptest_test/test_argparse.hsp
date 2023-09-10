@@ -1,6 +1,6 @@
-#include "argparse.hsp"
+#include "../argparse.hsp"
+#include "../console.hsp"
 #include "assertion.as"
-#include "console.hsp"
 
 *init
     options = {"

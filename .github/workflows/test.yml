@@ -33,21 +33,19 @@ jobs:
         if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
         run: 7z x hsp36en.zip -oC:/
 
-      - name: make test directory
+      - name: add hsp36 to path
+        shell: pwsh
+        run: echo "C:/hsp36" >> $env:GITHUB_PATH
+
+      - name: compile and install hsptest
         shell: pwsh
         run: |
-          cp -Force -Recurse common C:/hsp36
-          C:/hsp36/hspcmp.exe -d -o"hsptest.ax" --compath="C:/hsp36/common" ./hsptest.hsp
-          mkdir hsptest_test/tmpenv
-          cp *.hsp hsptest_test/tmpenv
-          cp hsptest_test/*.hsp hsptest_test/tmpenv
-          cp -Recurse hsptest_test/include hsptest_test/tmpenv/include
-          cp -Recurse hsptest_test/data hsptest_test/tmpenv/data
-          rm hsptest_test/tmpenv/hsptest.hsp
-          rm hsptest_test/tmpenv/make_testcall_script.hsp
+          hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
+          cp common/* C:/hsp36/common/
+          hsp3cl compile.ax
+          cp hsptest.exe C:/hsp36/
 
       - name: test
         shell: pwsh
         run: |
-          C:/hsp36/hsp3cl.exe hsptest.ax -v -s hsptest_test/tmpenv
-          rm -Recurse hsptest_test/tmpenv
+          hsptest -v -s hsptest_test

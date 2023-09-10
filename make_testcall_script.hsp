@@ -6,7 +6,7 @@
 #module
 
 /*
-一時ディレクトリ内の構成を守るためのフォルダを追加で作成する
+一時ディレクトリ内の構成を守るためのフォルダを一時ディレクトリ内に追加で作成する
 例えば、#include "path/to/module.as"と記述されていた場合、"path/to"フォルダを作成する
 引数
     path: フォルダを含むファイルへのパス
@@ -26,29 +26,102 @@
     }
     return
 
-#deffunc copy_file_used_in_test local file_num
+#deffunc local fetch_included_files_recursive str hsp_source_file_path, array included_source_list, var included_source_list_index, local escaped_cwd, local file_content_buf, local file_line_count, local file_line, local include_file, local include_file_abs
+    // ソースファイルをロード
+    notesel file_content_buf
+    noteload hsp_source_file_path
+    file_line_count = notemax
+
+    // ソースファイルの中を1行ずつ見る
+    repeat file_line_count
+        // #include文であったときは、そのファイルの存在を確かめてフルパスでinclude_fileに取得
+        noteget file_line, cnt
+        include_file = submatch(file_line, "#include\\s*\"([^\"]+)\"")
+        if include_file == "" : continue
+        strrep include_file, "/", "\\" // パス表現は\をデリミタとして統一する
+        sdim include_file_abs, 260
+        offset = 0
+        sdim full_path
+        if is_relative_path(include_file) {
+            GetFullPathNameA include_file, 260, varptr(include_file_abs), offset
+        } else {
+            include_file_abs = include_file
+        }
+        exist include_file_abs
+        if strsize == -1 : continue
+
+        // 既にリストに含まれているファイル内は中身のincludeを検索しない
+        found = 0
+        repeat included_source_list_index
+            if include_file_abs == included_source_list(cnt) {
+                found = 1
+                break
+            }
+        loop
+        if found : continue
+
+        // リストの末尾に見つかったインクルードファイルを追加
+        included_source_list(included_source_list_index) = include_file_abs
+        included_source_list_index++
+
+        // インクルードファイル内のインクルードファイルを検索
+        fetch_included_files_recursive include_file_abs, included_source_list, included_source_list_index
+    loop
+    ; chdir escaped_cwd
+    noteunsel
+    return
+
+#deffunc local copy_file_used_in_test local file_num, local script_path_list, local index_buf
+    // インクルードファイルパス一覧用のバッファを準備
+    sdim script_path_list, 260, 512
+    index_buf = 0
+
+    // カレントディレクトリ内のファイルパス一覧を取得
     dirlist2h@ 1
     dirlist2@ path_buf_size, "*", 1, '\\'
     sdim path_buf, path_buf_size + 1
     dirlist2r@ path_buf
+
+    // パス一覧を1行ずつ見る
     notesel path_buf
     file_num = notemax
     repeat file_num
         notesel path_buf
         noteget path, cnt
+
+        // パスにファイルが存在しないときは無視
         exist path
-        if strsize != -1 {
-            if instr(path, 0, temp_test_env_dir) != -1 : continue
-            if getpath(path, 32) != "" {
-                make_folder_in_path path
-            }
-            if getpath(path, 2) == ".hsp" || getpath(path, 2) == ".as" {
-                copy_with_edit path, temp_test_env_dir + "\\" + path
+        if strsize == -1 : continue
+
+        // テスト用一時ディレクトリ内のファイルなら無視
+        if instr(path, 0, temp_test_env_dir) != -1 : continue
+
+        // ファイルがhspスクリプトであるとき、スクリプト一覧に加える
+        if getpath(path, 2) == ".hsp" || getpath(path, 2) == ".as" {
+            if is_relative_path(path) {
+                sdim full_path, 260
+                offset = 0
+                GetFullPathNameA path, 260, varptr(full_path), offset
+                script_path_list(index_buf) = full_path
             } else {
-                bcopy path, temp_test_env_dir + "\\" + path
+                script_path_list(index_buf) = path
             }
+            index_buf++
+            fetch_included_files_recursive path, script_path_list, index_buf
         }
     loop
+
+    // 集まったインクルードファイルのフォルダ構成を一時ディレクトリ以下にコピーする
+    repeat index_buf
+        path = script_path_list(cnt)
+        dest_path = temp_test_env_dir + "\\" + none_drive_letter(path)
+
+        if getpath(path, 32) != "" {
+            make_folder_in_path none_drive_letter(path)
+        }
+        copy_with_edit path, dest_path
+    loop
+
     return
 
 /*
@@ -61,8 +134,16 @@
     テストスクリプトが保存されたファイルへのパス
  */
 #defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name
-    temp_test_name = "__testtmp.hsp"
+    // 一時ディレクトリを作成
     temp_test_env_dir = "__tmpenv"
+    mkdir temp_test_env_dir
+    cur_dir_in_temp_dir = dir_cur + "\\" + temp_test_env_dir + "\\" + none_drive_letter(dir_cur)
+
+    // カレントディレクトリ以下のスクリプトを一時ディレクトリにコピー
+    copy_file_used_in_test
+
+    // 呼び出し用のスクリプトを作成
+    temp_test_name = "__testtmp.hsp"
     generated_code_buf = "#runtime \"" + runtime_name + "\"\n"
     generated_code_buf += "#include \"kernel32.as\"\n"
     generated_code_buf += "AllocConsole\n"
@@ -76,13 +157,12 @@
     generated_code_buf += "WriteFile __stdout_handle, __result_str, strlen(__result_str), 0, 0\n"
     generated_code_buf += "end 0"
     notesel generated_code_buf
-    notesave temp_test_name
-    mkdir temp_test_env_dir
-    copy_with_edit temp_test_name, temp_test_env_dir + "\\" + temp_test_name
-    copy_file_used_in_test
-    delete temp_test_name
-    chdir temp_test_env_dir
-    return temp_test_name
+    generated_code_path = cur_dir_in_temp_dir + "\\" + temp_test_name
+    notesave generated_code_path
+
+    ; copy_with_edit temp_test_name, temp_test_env_dir + "\\" + temp_test_name
+    ; delete temp_test_name
+    return generated_code_path
 
 /*
 渡したフォルダの中身を全て削除する
@@ -118,7 +198,6 @@
 テストスクリプトおよびaxファイルを削除する
  */
 #deffunc delete_temp_test
-    chdir ".."
     delete_all_file temp_test_env_dir
     RemoveDirectory temp_test_env_dir
     return

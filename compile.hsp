@@ -20,13 +20,13 @@
 	mes "Compiling..."+fname
 
 	objname="start.ax"		; output object file
-	cmpmode=0
+	cmpmode=1
 	ppmode=4
 
 	hsc_ini srcname+".hsp"
 	hsc_objname objname
 	hsc_comp cmpmode,ppmode,0
-	res=stat:if res!=0 : dialog "ERROR" : goto *goerror
+	res=stat:if res!=0 : goto *goerror
 
 	mes "Make .exe file..."
     mes srcname
@@ -36,6 +36,7 @@
     end 0
 
 *goerror
+    sdim mesbuf, 2056
 	hsc_getmes mesbuf
     mes mesbuf
     end 1

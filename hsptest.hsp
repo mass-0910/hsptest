@@ -2,6 +2,13 @@
 #packopt name "hsptest"
 #packopt orgpath 1
 #packopt version "VERSION"
+
+#uselib "winmm.dll"
+#cfunc timeGetTime "timeGetTime"
+#uselib "shlwapi.dll"
+#cfunc global PathIsRelativeA "PathIsRelativeA" sptr
+#cfunc global PathRelativePathToA "PathRelativePathToA" sptr, sptr, sptr, sptr, sptr
+
 #include "hspdef.as"
 #include "exception_code.as"
 #include "hspext.as"
@@ -18,10 +25,10 @@
 #include "util.hsp"
 #include "annotation.hsp"
 #include "script_tool.hsp"
-#uselib "winmm.dll"
-#cfunc timeGetTime "timeGetTime"
 
-version = "0.7.1"
+#define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
+
+version = "0.8"
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -44,14 +51,17 @@ options = {"
 --stop --stop 0
 --version --version 0
 "}
-parse_args 1, options, dir_cmdline
+parse_args 32, options, dir_cmdline
+
+// for debug
+onerror goto *hsptest_error
 
 // show usage
 if is_exist_option("--help") {
-    mes "usage: hsptest [options] [path_to_test_dir]"
+    mes "usage: hsptest [options] [file_or_directory_path(s)]"
     mes ""
     mes "arguments:"
-    mes "  path_to_test_dir       the path to the directory containing the files you want to run the tests"
+    mes "  file_or_directory_path(s)    the path(s) to the script file or directory containing the files you want to run the tests"
     mes ""
     mes "options:"
     mes "  -v, --verbose          print the result for each test"
@@ -77,18 +87,49 @@ if is_exist_option("--runtime") && is_valid_runtime_name(get_option_arg("--runti
     end -1
 }
 
-// change cwd to test directory
+// extract test scripts
+file_num = 0
 first_cwd = dir_cur
-if get_arg(0) != "" {
-    if exist_dir(get_arg(0)) == 0 {
-        color_mes "hsptest: error: directory " + get_arg(0) + " is an invalid path", 0, FOREGROUND_RED
+search_entry_num = get_arg_num()
+if search_entry_num == 0 : search_entry_num = 1
+repeat search_entry_num
+    entry = get_arg(cnt)
+    if entry == "" {
+        if cnt == 0 {
+            entry = "."
+        } else {
+            continue
+        }
+    }
+
+    exist entry
+    if strsize == -1 && exist_dir(entry) == 0 {
+        color_mes "hsptest: error: directory " + entry + " is an invalid path", 0, FOREGROUND_RED
         end -1
     }
-    chdir get_arg(0)
-}
-dirlist testcodes, "*.hsp", 1
-notesel testcodes
-file_num = notemax
+
+    if strsize != -1 {
+        // 表示されるファイル名の整形
+        sdim rel_path, 260
+        abs_pathes = get_absolute_path("."), get_absolute_path(entry)
+        a = PathRelativePathToA(varptr(rel_path), abs_pathes(0), 0x10, abs_pathes(1), 0)
+        strrep rel_path, "\\", "/" // バックスラッシュをパスのデリミタにすると、テストルーチン呼び出しスクリプトのinclude文に突っ込んだときにエスケープシーケンスと誤認されるため、デリミタをスラッシュに置換する
+        strrep rel_path, "./", ""
+        notesel testcodes
+        noteadd rel_path + ";" + getpath(entry, 32)
+        file_num += 1
+    } else {
+        testcodes_in_dir = ""
+        notesel testcodes_in_dir
+        chdir entry
+        dirlist testcodes_in_dir, "*.hsp", 1
+        chdir first_cwd
+        strrep testcodes_in_dir, "\n", ";" + entry + "\n"
+        file_num += notemax + 1
+        notesel testcodes
+        noteadd testcodes_in_dir
+    }
+loop
 
 // output first message
 centered_mes " test session starts ", FOREGROUND_WHITE, "="
@@ -108,8 +149,12 @@ label_pattern = "^(?:.*:)?[ \\t]*(\\*test\\w*)[^\\r]*$"
 all_test_num = 0
 repeat file_num
     notesel testcodes
-    noteget file_name, cnt
+    noteget file_name_and_cwd, cnt
+    if strtrim(file_name_and_cwd) == "" : continue
+    split file_name_and_cwd, ";", file_name, code_cwd
     if strlen(match(file_name, "test")) == 0 : continue
+    chdir first_cwd
+    chdir code_cwd
     notesel testcode_buf
     noteload file_name
     remove_unused_data tmp, testcode_buf
@@ -144,8 +189,13 @@ repeat file_num
 
     // continue if file is not test
     notesel testcodes
-    noteget file_name, cnt
+    noteget file_name_and_cwd, cnt
+    split file_name_and_cwd, ";", file_name, code_cwd
     if strlen(match(file_name, "test")) == 0 : continue
+
+    // change cwd to code directory
+    chdir first_cwd
+    chdir code_cwd
 
     notesel testcode_buf
     noteload file_name
@@ -208,11 +258,14 @@ repeat file_num
         temptest_path = make_temp_test(file_name, label_name, runtime_name)
 
         // compile test
+        before_compipe_cwd = dir_cur
+        chdir getpath(temptest_path, 32)
         hsc_ini temptest_path
         hsc_compath dir_exe + "\\common\\"
         hsc_comp 1, 0, 0
         hsc_getmes stdout
         hsc_bye
+        chdir before_compipe_cwd
         if instr(stdout, 0, "#No error detected.") == -1 {
             strrep stdout, "\n", "\nhspcmp:"
             mes test_name + "@" + file_name + ": FAIL: compile error"
@@ -222,6 +275,13 @@ repeat file_num
             continue
         }
 
+        // copy executable ax file to test directory
+        ax_file_path_in_temp_dir = getpath(temptest_path, 1) + ".ax"
+        bcopy ax_file_path_in_temp_dir, HSPTEST_TESTCALL_AX_NAME
+
+        // delete temp dir
+        delete_temp_test
+
         // execute test
         dim process_info, 4
         dim sa_attr, 3
@@ -230,7 +290,7 @@ repeat file_num
         CreatePipe varptr(runtime_stdout_handle_rd), varptr(runtime_stdout_handle_wr), varptr(sa_attr), 0
         dim startup_info, 17
         startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
-        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + getpath(temptest_path, 1) + ".ax", 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+        CreateProcess 0, dir_exe + "\\" + runtime_name + ".exe " + HSPTEST_TESTCALL_AX_NAME, 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
         CloseHandle runtime_stdout_handle_wr
         if double(get_annotation_attr_val("timeout")) <= 0.0 {
             timeout = 0xFFFFFFFF
@@ -296,8 +356,8 @@ repeat file_num
             stdout_result(test_num - 1) = 1
         }
 
-        // delete temporary testcall script
-        delete_temp_test
+        // delete temporary testcall ax file
+        delete HSPTEST_TESTCALL_AX_NAME
     loop
     if is_exist_option("--verbose") == 0 : mes ""
 loop
@@ -377,3 +437,8 @@ if (is_exist_option("--stop")) {
     input a, , 1
 }
 end test_fail
+
+*hsptest_error
+    mes "[internal error hsptest]"
+    mes "hsptest_error(" + wparam + "): " + errmsg(wparam) + " in line " + lparam
+    end wparam

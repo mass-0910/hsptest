@@ -67,6 +67,30 @@ HSP3ランタイムからそのバージョンを取得する
     dw_attrib = GetFileAttributes(path)
     return dw_attrib != -1 && (dw_attrib & 0x00000010) != 0
 
+/*
+引数で渡されたパスが絶対パスであるとき、非ゼロを返す
+*/
+#defcfunc is_absolute_path str path
+    return PathIsRelativeA(path) == 0
+
+/*
+引数で渡されたパスが相対パスであるとき、非ゼロを返す
+*/
+#defcfunc is_relative_path str path
+    return PathIsRelativeA(path)
+
+/*
+渡された絶対パスからドライブ文字(C:\)を取り除いた文字列を返す
+*/
+#defcfunc none_drive_letter str fullpath
+    return replace(fullpath, "[A-Z]:\\\\", "")
+
+#defcfunc get_absolute_path str path, local full_path
+    offset = 0
+    sdim full_path, 260
+    GetFullPathNameA path, 260, varptr(full_path), offset
+    return full_path
+
 #global
 
 #endif
