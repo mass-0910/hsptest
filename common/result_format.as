@@ -4,32 +4,32 @@
 #module
 
 /*
-æˆåŠŸæ™‚ã®stdoutæ–‡å­—åˆ—ã‚’è¿”ã™
-è¿”ã‚Šå€¤
-    æˆåŠŸæ™‚ã®stdoutæ–‡å­—åˆ—
+¬Œ÷‚Ìstdout•¶š—ñ‚ğ•Ô‚·
+•Ô‚è’l
+    ¬Œ÷‚Ìstdout•¶š—ñ
 */
 #defcfunc get_pass_result_format
     return "&RESULT&{PASS;0;#;#}"
 
 /*
-å¤±æ•—æ™‚ã®stdoutæ–‡å­—åˆ—ã‚’è¿”ã™
-å¼•æ•°
-    error_line: ã‚¨ãƒ©ãƒ¼ç™ºç”Ÿè¡Œæ•°
-    error_message: ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
-è¿”ã‚Šå€¤
-    å¤±æ•—æ™‚ã®stdoutæ–‡å­—åˆ—
+¸”s‚Ìstdout•¶š—ñ‚ğ•Ô‚·
+ˆø”
+    error_line: ƒGƒ‰[”­¶s”
+    error_message: ƒGƒ‰[ƒƒbƒZ[ƒW
+•Ô‚è’l
+    ¸”s‚Ìstdout•¶š—ñ
 */
 #defcfunc get_fail_result_format int error_line, str error_file, str error_message
     return "&RESULT&{FAIL;" + error_line + ";" + error_file + ";" + error_message + "}"
 
 /*
-ã‚³ãƒ¼ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã®stdoutæ–‡å­—åˆ—ã‚’è¿”ã™
-å¼•æ•°
-    file_name: ãƒ•ã‚¡ã‚¤ãƒ«å
-    file_line: ãƒ•ã‚¡ã‚¤ãƒ«è¡Œç•ªå·
-    depth: æ·±ã•
-è¿”ã‚Šå€¤
-    ã‚³ãƒ¼ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã®stdoutæ–‡å­—åˆ—
+ƒR[ƒ‹ƒXƒ^ƒbƒN‚Ìstdout•¶š—ñ‚ğ•Ô‚·
+ˆø”
+    file_name: ƒtƒ@ƒCƒ‹–¼
+    file_line: ƒtƒ@ƒCƒ‹s”Ô†
+    depth: [‚³
+•Ô‚è’l
+    ƒR[ƒ‹ƒXƒ^ƒbƒN‚Ìstdout•¶š—ñ
 */
 #defcfunc get_callstack_format str file_name, int file_line, int depth
     return "&CALLSTACK&{" + file_name + ";" + file_line + ";" + depth + "}"

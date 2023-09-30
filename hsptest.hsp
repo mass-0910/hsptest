@@ -109,11 +109,11 @@ repeat search_entry_num
     }
 
     if strsize != -1 {
-        // è¡¨ç¤ºã•ã‚Œã‚‹ãƒ•ã‚¡ã‚¤ãƒ«åã®æ•´å½¢
+        // •\¦‚³‚ê‚éƒtƒ@ƒCƒ‹–¼‚Ì®Œ`
         sdim rel_path, 260
         abs_pathes = get_absolute_path("."), get_absolute_path(entry)
         a = PathRelativePathToA(varptr(rel_path), abs_pathes(0), 0x10, abs_pathes(1), 0)
-        strrep rel_path, "\\", "/" // ãƒãƒƒã‚¯ã‚¹ãƒ©ãƒƒã‚·ãƒ¥ã‚’ãƒ‘ã‚¹ã®ãƒ‡ãƒªãƒŸã‚¿ã«ã™ã‚‹ã¨ã€ãƒ†ã‚¹ãƒˆãƒ«ãƒ¼ãƒãƒ³å‘¼ã³å‡ºã—ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®includeæ–‡ã«çªã£è¾¼ã‚“ã ã¨ãã«ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã¨èª¤èªã•ã‚Œã‚‹ãŸã‚ã€ãƒ‡ãƒªãƒŸã‚¿ã‚’ã‚¹ãƒ©ãƒƒã‚·ãƒ¥ã«ç½®æ›ã™ã‚‹
+        strrep rel_path, "\\", "/" // ƒoƒbƒNƒXƒ‰ƒbƒVƒ…‚ğƒpƒX‚ÌƒfƒŠƒ~ƒ^‚É‚·‚é‚ÆAƒeƒXƒgƒ‹[ƒ`ƒ“ŒÄ‚Ño‚µƒXƒNƒŠƒvƒg‚Ìinclude•¶‚É“Ë‚Á‚ñ‚¾‚Æ‚«‚ÉƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚ÆŒë”F‚³‚ê‚é‚½‚ßAƒfƒŠƒ~ƒ^‚ğƒXƒ‰ƒbƒVƒ…‚É’uŠ·‚·‚é
         strrep rel_path, "./", ""
         notesel testcodes
         noteadd rel_path + ";" + getpath(entry, 32)

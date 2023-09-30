@@ -1,4 +1,4 @@
-// hsptest.hsp繧弾xe縺ｫ繧ｳ繝ｳ繝代う繝ｫ縺吶ｋ縺溘ａ縺ｮ繧ｹ繧ｯ繝ｪ繝励ヨ
+// hsptest.hspをexeにコンパイルするためのスクリプト
 
 #runtime "hsp3cl"
 #packopt name "compile"
