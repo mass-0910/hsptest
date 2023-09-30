@@ -1,4 +1,4 @@
-#include "assertion.as" ; 各種assertionをincludeする
+#include "hsptest_assertion.as" ; 各種assertionをincludeする
 
 ;ラベル名は*testXXX...のような名前にしてください
 ;テストサブルーチン
