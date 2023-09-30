@@ -86,7 +86,7 @@ hsptestは、`test`を名前に含むHSPスクリプトファイルをテスト�
 hsptestで実行されるテストは、テスト一つに対して一つのサブルーチンで記述する必要があります。テストサブルーチンのラベル名は、`*test`から始まるものである必要があります。以下の例のようにテストスクリプトを記述してください。
 
 ```
-#include "assertion.as" ; 各種assertionをincludeする
+#include "hsptest_assertion.as" ; 各種assertionをincludeする
 
 ;ラベル名は*testXXX...のような名前にしてください
 ;テストサブルーチン
@@ -134,9 +134,9 @@ hsptest -v test
 hsptest -l hogehoge.log test
 ```
 
-## `assertion.as`の使い方
+## `hsptest_assertion.as`の使い方
 
-`common`フォルダに入れていただいた`assertion.as`は、世界に数多あるテストフレームワークで使用されている各種assertion命令を再現するためのマクロ定義ファイルです。これをテストスクリプト内でincludeしていただくと、以下のようなassertion命令が使用できます。[]で囲われている引数は省略可能です。
+`common`フォルダに入れていただいた`hsptest_assertion.as`は、世界に数多あるテストフレームワークで使用されている各種assertion命令を再現するためのマクロ定義ファイルです。これをテストスクリプト内でincludeしていただくと、以下のようなassertion命令が使用できます。[]で囲われている引数は省略可能です。
 
 |assertion命令|引数|説明|例|
 |---|---|---|---|

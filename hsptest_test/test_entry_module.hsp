@@ -1,5 +1,5 @@
 #include "../append_data.hsp"
-#include "assertion.as"
+#include "hsptest_assertion.as"
 
 *test_char
     assertTrue is_name_alphabet('a')

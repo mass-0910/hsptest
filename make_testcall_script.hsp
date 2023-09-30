@@ -148,7 +148,7 @@
     generated_code_buf += "#include \"kernel32.as\"\n"
     generated_code_buf += "AllocConsole\n"
     generated_code_buf += "goto *__start\n"
-    generated_code_buf += "#include \"test.as\"\n"
+    generated_code_buf += "#include \"hsptest_common.as\"\n"
     generated_code_buf += "#include \"" + testfile_name + "\"\n"
     generated_code_buf += "*__start\n"
     generated_code_buf += "gosub *__testinit\n"

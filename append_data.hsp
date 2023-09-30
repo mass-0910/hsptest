@@ -1,7 +1,7 @@
 #ifndef append_data_hsp_included
 #define append_data_hsp_included
 
-#include "result_format.as"
+#include "hsptest_result_format.as"
 
 #module
 
