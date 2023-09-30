@@ -4,11 +4,11 @@
 #module
 
 /*
-ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›ãƒ¢ã‚¸ãƒ¥ãƒ¼ãƒ«ã®åˆæœŸåŒ–ã‚’è¡Œã†
-å¼•æ•°
-    hspver_str: HSP3ãƒ©ãƒ³ã‚¿ã‚¤ãƒ ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³
-    hsptest_version: hsptestã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³
-    testdir_path: ãƒ†ã‚¹ãƒˆã‚’è¡Œã†ãƒ•ã‚©ãƒ«ãƒ€ã¸ã®ãƒ•ãƒ«ãƒ‘ã‚¹
+ƒƒOƒtƒ@ƒCƒ‹o—Íƒ‚ƒWƒ…[ƒ‹‚Ì‰Šú‰»‚ğs‚¤
+ˆø”
+    hspver_str: HSP3ƒ‰ƒ“ƒ^ƒCƒ€‚Ìƒo[ƒWƒ‡ƒ“
+    hsptest_version: hsptest‚Ìƒo[ƒWƒ‡ƒ“
+    testdir_path: ƒeƒXƒg‚ğs‚¤ƒtƒHƒ‹ƒ_‚Ö‚Ìƒtƒ‹ƒpƒX
 */
 #deffunc init_logfile_module str hspver_str, str hsptest_version, str testdir_path
     result_logfile_buf = "[RESULTS]\n"
@@ -23,12 +23,12 @@
     return
 
 /*
-ãƒ­ã‚°å‡ºåŠ›ã‚’è¡Œã†éš›ã®ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ãƒ˜ãƒƒãƒ€æ–‡å­—åˆ—ã‚’è¿”ã™
-å¼•æ•°
-    log_header: ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿å†…ã«è¡¨ç¤ºã™ã‚‹æ–‡å­—åˆ—
-    separator: ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ã«ä½¿ç”¨ã™ã‚‹æ–‡å­—
-è¿”ã‚Šå€¤
-    ã‚»ãƒ‘ãƒ¬ãƒ¼ã‚¿ãƒ˜ãƒƒãƒ€æ–‡å­—åˆ—
+ƒƒOo—Í‚ğs‚¤Û‚ÌƒZƒpƒŒ[ƒ^ƒwƒbƒ_•¶š—ñ‚ğ•Ô‚·
+ˆø”
+    log_header: ƒZƒpƒŒ[ƒ^“à‚É•\¦‚·‚é•¶š—ñ
+    separator: ƒZƒpƒŒ[ƒ^‚Ég—p‚·‚é•¶š
+•Ô‚è’l
+    ƒZƒpƒŒ[ƒ^ƒwƒbƒ_•¶š—ñ
 */
 #defcfunc local get_log_header str log_header, str separator, local buf
     buf = ""
@@ -42,11 +42,11 @@
     return buf
 
 /*
-ãƒ†ã‚¹ãƒˆçµæœã‚’ãƒ­ã‚°ãƒãƒƒãƒ•ã‚¡ã«è¿½åŠ ã™ã‚‹
-å¼•æ•°
-    file_name: ãƒ†ã‚¹ãƒˆã®ãƒ•ã‚¡ã‚¤ãƒ«å
-    test_name: ãƒ†ã‚¹ãƒˆå
-    status: ãƒ†ã‚¹ãƒˆçµæœã‚’ç¤ºã™ã‚³ãƒ¼ãƒ‰
+ƒeƒXƒgŒ‹‰Ê‚ğƒƒOƒoƒbƒtƒ@‚É’Ç‰Á‚·‚é
+ˆø”
+    file_name: ƒeƒXƒg‚Ìƒtƒ@ƒCƒ‹–¼
+    test_name: ƒeƒXƒg–¼
+    status: ƒeƒXƒgŒ‹‰Ê‚ğ¦‚·ƒR[ƒh
 */
 #deffunc append_result_log str file_name, str test_name, int status
     if status == 0 {
@@ -62,11 +62,11 @@
     return
 
 /*
-ãƒ†ã‚¹ãƒˆã‹ã‚‰ã‚­ãƒ£ãƒ—ãƒãƒ£ã•ã‚ŒãŸå‡ºåŠ›ã‚’ãƒ­ã‚°ãƒãƒƒãƒ•ã‚¡ã«è¿½åŠ ã™ã‚‹
-å¼•æ•°
-    file_name: ãƒ†ã‚¹ãƒˆã®ãƒ•ã‚¡ã‚¤ãƒ«å
-    test_name: ãƒ†ã‚¹ãƒˆå
-    stdout: æ¨™æº–å‡ºåŠ›æ–‡å­—åˆ—
+ƒeƒXƒg‚©‚çƒLƒƒƒvƒ`ƒƒ‚³‚ê‚½o—Í‚ğƒƒOƒoƒbƒtƒ@‚É’Ç‰Á‚·‚é
+ˆø”
+    file_name: ƒeƒXƒg‚Ìƒtƒ@ƒCƒ‹–¼
+    test_name: ƒeƒXƒg–¼
+    stdout: •W€o—Í•¶š—ñ
 */
 #deffunc append_stdout_log str file_name, str test_name, str stdout
     stdout_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
@@ -74,14 +74,14 @@
     return
 
 /*
-å¤±æ•—ãƒ†ã‚¹ãƒˆã®è©³ç´°ã‚’ãƒ­ã‚°ãƒãƒƒãƒ•ã‚¡ã«è¿½åŠ ã™ã‚‹
-å¼•æ•°
-    file_name: ãƒ†ã‚¹ãƒˆã®ãƒ•ã‚¡ã‚¤ãƒ«å
-    test_name: ãƒ†ã‚¹ãƒˆå
-    error_file: ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸãƒ•ã‚¡ã‚¤ãƒ«å
-    error_line: ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸè¡Œç•ªå·
-    error_detail: ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
-    callstack: ã‚³ãƒ¼ãƒ«ã‚¹ã‚¿ãƒƒã‚¯æƒ…å ±ãŒæ ¼ç´ã•ã‚ŒãŸé…åˆ—
+¸”sƒeƒXƒg‚ÌÚ×‚ğƒƒOƒoƒbƒtƒ@‚É’Ç‰Á‚·‚é
+ˆø”
+    file_name: ƒeƒXƒg‚Ìƒtƒ@ƒCƒ‹–¼
+    test_name: ƒeƒXƒg–¼
+    error_file: ƒGƒ‰[‚ª”­¶‚µ‚½ƒtƒ@ƒCƒ‹–¼
+    error_line: ƒGƒ‰[‚ª”­¶‚µ‚½s”Ô†
+    error_detail: ƒGƒ‰[ƒƒbƒZ[ƒW
+    callstack: ƒR[ƒ‹ƒXƒ^ƒbƒNî•ñ‚ªŠi”[‚³‚ê‚½”z—ñ
 */
 #deffunc append_detail_log str file_name, str test_name, str error_file, int error_line, str error_detail, array callstack
     detail_logfile_buf += get_log_header(" " + file_name + "::" + test_name + " ", "=") + "\n"
@@ -131,9 +131,9 @@
     return
 
 /*
-ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ãè¾¼ã‚€æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹
-è¿”ã‚Šå€¤
-    ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã«æ›¸ãè¾¼ã‚€æ–‡å­—åˆ—
+ƒƒOƒtƒ@ƒCƒ‹‚É‘‚«‚Ş•¶š—ñ‚ğæ“¾‚·‚é
+•Ô‚è’l
+    ƒƒOƒtƒ@ƒCƒ‹‚É‘‚«‚Ş•¶š—ñ
 */
 #defcfunc get_logfile_str local buf
     buf = "ran on HSP " + hspver_str_ + ", hsptest " + hsptest_version_ + "\n\n"
@@ -146,9 +146,9 @@
     return buf
 
 /*
-ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œæˆã™ã‚‹
-å¼•æ•°
-    logfile_path: ãƒ­ã‚°ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ãƒ‘ã‚¹
+ƒƒOƒtƒ@ƒCƒ‹‚ğì¬‚·‚é
+ˆø”
+    logfile_path: ƒƒOƒtƒ@ƒCƒ‹‚Ö‚ÌƒpƒX
 */
 #deffunc make_logfile str logfile_path, local buf
     buf = get_logfile_str()

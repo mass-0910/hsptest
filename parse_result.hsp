@@ -4,15 +4,15 @@
 #module
 
 /*
-stdoutã‹ã‚‰çµæžœã‚’ãƒ‘ãƒ¼ã‚¹ã™ã‚‹
-å¼•æ•°
-    stdout: hspãƒ©ãƒ³ã‚¿ã‚¤ãƒ ã‹ã‚‰å‡ºåŠ›ã•ã‚ŒãŸæ–‡å­—åˆ—
-    result: çµæžœ("PASS"ã¾ãŸã¯"FAIL")ã‚’æ ¼ç´ã™ã‚‹å¤‰æ•°
-    error_line: ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸè¡Œæ•°ã‚’æ ¼ç´ã™ã‚‹å¤‰æ•°
-    error_file: ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ãŸãƒ•ã‚¡ã‚¤ãƒ«åã‚’æ ¼ç´ã™ã‚‹å¤‰æ•°
-    error_message: ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’æ ¼ç´ã™ã‚‹å¤‰æ•°
-    callstack: ã‚³ãƒ¼ãƒ«ã‚¹ã‚¿ãƒƒã‚¯æƒ…å ±ã‚’æ ¼ç´ã™ã‚‹é…åˆ—
-    removed_stdout: ç‰¹æ®Šãƒ•ã‚©ãƒ¼ãƒžãƒƒãƒˆæ–‡å­—åˆ—ã‚’å…¨ã¦å–ã‚Šé™¤ã„ãŸæ¨™æº–å‡ºåŠ›ãŒæ ¼ç´ã•ã‚Œã‚‹å¤‰æ•°
+stdout‚©‚çŒ‹‰Ê‚ðƒp[ƒX‚·‚é
+ˆø”
+    stdout: hspƒ‰ƒ“ƒ^ƒCƒ€‚©‚ço—Í‚³‚ê‚½•¶Žš—ñ
+    result: Œ‹‰Ê("PASS"‚Ü‚½‚Í"FAIL")‚ðŠi”[‚·‚é•Ï”
+    error_line: ƒGƒ‰[‚ª”­¶‚µ‚½s”‚ðŠi”[‚·‚é•Ï”
+    error_file: ƒGƒ‰[‚ª”­¶‚µ‚½ƒtƒ@ƒCƒ‹–¼‚ðŠi”[‚·‚é•Ï”
+    error_message: ƒGƒ‰[ƒƒbƒZ[ƒW‚ðŠi”[‚·‚é•Ï”
+    callstack: ƒR[ƒ‹ƒXƒ^ƒbƒNî•ñ‚ðŠi”[‚·‚é”z—ñ
+    removed_stdout: “ÁŽêƒtƒH[ƒ}ƒbƒg•¶Žš—ñ‚ð‘S‚ÄŽæ‚èœ‚¢‚½•W€o—Í‚ªŠi”[‚³‚ê‚é•Ï”
 */
 #deffunc parse_result_format str stdout, var result, var error_line, var error_file, var error_message, array callstack, var removed_stdout
     buf = stdout

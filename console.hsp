@@ -14,7 +14,7 @@
 #define global BACKGROUND_INTENSITY 0x0080 // background color is intensified.
 
 /*
-コンソール表示機能の初期化
+�R���\�[���\���@�\�̏�����
 */
 #deffunc console_init
     AllocConsole
@@ -22,11 +22,11 @@
     return
 
 /*
-コンソールに色付きで文字を出力する
-引数
-    mes_str: 出力する文字列
-    option: mes命令に渡すオプション
-    color_code: Windows APIで定義されているカラーコード
+�R���\�[���ɐF�t���ŕ������o�͂���
+����
+    mes_str: �o�͂��镶����
+    option: mes���߂ɓn���I�v�V����
+    color_code: Windows API�Œ�`����Ă���J���[�R�[�h
 */
 #deffunc color_mes str mes_str, int option, int color_code
     SetConsoleTextAttribute stdout_handle, color_code
@@ -35,11 +35,11 @@
     return
 
 /*
-コンソールの中央に表示する文字列を出力する
-引数
-    mes_str: 出力する文字列
-    color_code: Windows APIで定義されているカラーコード
-    fill_char: 空白部分に表示する文字
+�R���\�[���̒����ɕ\�����镶������o�͂���
+����
+    mes_str: �o�͂��镶����
+    color_code: Windows API�Œ�`����Ă���J���[�R�[�h
+    fill_char: �󔒕����ɕ\�����镶��
 */
 #deffunc centered_mes str mes_str, int color_code, str fill_char
     cw = console_width()
@@ -58,11 +58,11 @@
     return
 
 /*
-コンソールに右詰めで表示する文字列を出力する
-引数
-    mes_str: 出力する文字列
-    color_code: Windows APIで定義されているカラーコード
-    new_line: 右詰め文字列を出力したあとに改行を行う場合trueを渡す
+�R���\�[���ɉE�l�߂ŕ\�����镶������o�͂���
+����
+    mes_str: �o�͂��镶����
+    color_code: Windows API�Œ�`����Ă���J���[�R�[�h
+    new_line: �E�l�ߕ�������o�͂������Ƃɉ��s���s���ꍇtrue��n��
 */
 #deffunc right_justified_mes str mes_str, int color_code, int newline
     cw = console_width()
@@ -81,9 +81,9 @@
     return
 
 /*
-コンソール画面の文字列幅を取得する
-返り値
-    コンソール画面の文字列幅
+�R���\�[����ʂ̕����񕝂��擾����
+�Ԃ�l
+    �R���\�[����ʂ̕�����
 */
 #defcfunc console_width
     dim csbi, 6
@@ -91,9 +91,9 @@
     return wpeek(csbi, 14)
 
 /*
-コンソールの現在の出力位置のx座標を取得する
-返り値
-    コンソールの現在の出力位置のx座標
+�R���\�[���̌��݂̏o�͈ʒu��x���W���擾����
+�Ԃ�l
+    �R���\�[���̌��݂̏o�͈ʒu��x���W
  */
 #defcfunc console_x
     dim csbi, 6
@@ -101,9 +101,9 @@
     return wpeek(csbi,4)
 
 /*
-コンソールの出力位置のx座標を設定する
-引数
-    x: コンソールの出力位置のx座標
+�R���\�[���̏o�͈ʒu��x���W��ݒ肷��
+����
+    x: �R���\�[���̏o�͈ʒu��x���W
 */
 #deffunc set_console_x int x
     dim csbi, 6
