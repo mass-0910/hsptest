@@ -1,0 +1,3 @@
+# hspスクリプトをdiffでShift_JISとして認識させるための設定
+*.hsp diff=sjis
+*.as diff=sjis

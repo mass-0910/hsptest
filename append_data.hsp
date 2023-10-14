@@ -1,7 +1,7 @@
 #ifndef append_data_hsp_included
 #define append_data_hsp_included
 
-#include "result_format.as"
+#include "hsptest_result_format.as"
 
 #module
 
@@ -9,31 +9,31 @@
 #define FAILURE 0
 
 /*
-å¼•æ•°ãŒå˜èªã«ä½¿ç”¨ã•ã‚Œã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
-å¼•æ•°
-    ch: æ–‡å­—ã‚³ãƒ¼ãƒ‰
-è¿”ã‚Šå€¤
-    æ–‡å­—ã‚³ãƒ¼ãƒ‰ãŒå˜èªã«ä½¿ç”¨ã•ã‚Œã‚‹ã‚‚ã®ã®å ´åˆtrue
+ˆø”‚ª’PŒê‚Ég—p‚³‚ê‚é•¶šƒR[ƒh‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+ˆø”
+    ch: •¶šƒR[ƒh
+•Ô‚è’l
+    •¶šƒR[ƒh‚ª’PŒê‚Ég—p‚³‚ê‚é‚à‚Ì‚Ìê‡true
 */
 #defcfunc is_name_alphabet int ch
     return ('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') || ('0' <= ch && ch <= '9') || ch == '_'
 
 /*
-å¼•æ•°ãŒç©ºç™½æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
-å¼•æ•°
-    ch: æ–‡å­—ã‚³ãƒ¼ãƒ‰
-è¿”ã‚Šå€¤
-    æ–‡å­—ã‚³ãƒ¼ãƒ‰ãŒç©ºç™½æ–‡å­—ã®å ´åˆtrue
+ˆø”‚ª‹ó”’•¶šƒR[ƒh‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+ˆø”
+    ch: •¶šƒR[ƒh
+•Ô‚è’l
+    •¶šƒR[ƒh‚ª‹ó”’•¶š‚Ìê‡true
 */
 #defcfunc is_space int ch
     return ch == ' ' || ch == '\t'
 
 /*
-å¼•æ•°ã®è¡Œæ–‡å­—åˆ—ãŒHSP3ã«ãŠã‘ã‚‹ãƒãƒ«ãƒãƒ©ã‚¤ãƒ³ã‚³ãƒ¼ãƒ‰ã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
-å¼•æ•°
-    line_str: HSP3ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®1è¡Œã‚³ãƒ¼ãƒ‰æ–‡å­—åˆ—
-è¿”ã‚Šå€¤
-    ã‚³ãƒ¼ãƒ‰ãŒãƒãƒ«ãƒãƒ©ã‚¤ãƒ³ã‚³ãƒ¼ãƒ‰ã®å ´åˆtrue
+ˆø”‚Ìs•¶š—ñ‚ªHSP3‚É‚¨‚¯‚éƒ}ƒ‹ƒ`ƒ‰ƒCƒ“ƒR[ƒh‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+ˆø”
+    line_str: HSP3ƒXƒNƒŠƒvƒg‚Ì1sƒR[ƒh•¶š—ñ
+•Ô‚è’l
+    ƒR[ƒh‚ªƒ}ƒ‹ƒ`ƒ‰ƒCƒ“ƒR[ƒh‚Ìê‡true
 */
 #defcfunc is_multi_line str line_str
     line_str_buf = line_str
@@ -50,10 +50,10 @@
     return result
 
 /*
-ã‚¹ã‚¯ãƒªãƒ—ãƒˆã«çŠ¶æ…‹å–å¾—ç”¨ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’æŒ¿å…¥ã—ãŸã‚³ãƒ”ãƒ¼ã‚’ä½œæˆã™ã‚‹
-å¼•æ•°
-    src_file_path: ã‚³ãƒ”ãƒ¼å…ƒã‚¹ã‚¯ãƒªãƒ—ãƒˆã¸ã®ãƒ‘ã‚¹
-    dest_file_path: ã‚³ãƒ”ãƒ¼å…ˆã‚¹ã‚¯ãƒªãƒ—ãƒˆã¸ã®ãƒ‘ã‚¹
+ƒXƒNƒŠƒvƒg‚Éó‘Ôæ“¾—pƒvƒƒOƒ‰ƒ€‚ğ‘}“ü‚µ‚½ƒRƒs[‚ğì¬‚·‚é
+ˆø”
+    src_file_path: ƒRƒs[Œ³ƒXƒNƒŠƒvƒg‚Ö‚ÌƒpƒX
+    dest_file_path: ƒRƒs[æƒXƒNƒŠƒvƒg‚Ö‚ÌƒpƒX
 */
 #deffunc copy_with_edit str src_file_path, str dest_file_path
     notesel buf
@@ -79,7 +79,7 @@
             reading_index++
         }
         ignore_multiline_inst = 0
-        // ãƒãƒ«ãƒãƒ©ã‚¤ãƒ³æ–‡å­—åˆ—ã«ã¯æŒ¿å…¥ã—ãªã„
+        // ƒ}ƒ‹ƒ`ƒ‰ƒCƒ“•¶š—ñ‚É‚Í‘}“ü‚µ‚È‚¢
         if ignore_multiline_str == 0 && instr(l, 0, "{\"") != -1 && instr(l, 0, "\"}") == -1 {
             ignore_multiline_str = 1
         }

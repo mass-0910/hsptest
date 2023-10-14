@@ -6,10 +6,10 @@
 #module
 
 /*
-ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã®æ§‹æˆã‚’å®ˆã‚‹ãŸã‚ã®ãƒ•ã‚©ãƒ«ãƒ€ã‚’ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã«è¿½åŠ ã§ä½œæˆã™ã‚‹
-ä¾‹ãˆã°ã€#include "path/to/module.as"ã¨è¨˜è¿°ã•ã‚Œã¦ã„ãŸå ´åˆã€"path/to"ãƒ•ã‚©ãƒ«ãƒ€ã‚’ä½œæˆã™ã‚‹
-å¼•æ•°
-    path: ãƒ•ã‚©ãƒ«ãƒ€ã‚’å«ã‚€ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ãƒ‘ã‚¹
+ˆêƒfƒBƒŒƒNƒgƒŠ“à‚Ì\¬‚ğç‚é‚½‚ß‚ÌƒtƒHƒ‹ƒ_‚ğˆêƒfƒBƒŒƒNƒgƒŠ“à‚É’Ç‰Á‚Åì¬‚·‚é
+—á‚¦‚ÎA#include "path/to/module.as"‚Æ‹Lq‚³‚ê‚Ä‚¢‚½ê‡A"path/to"ƒtƒHƒ‹ƒ_‚ğì¬‚·‚é
+ˆø”
+    path: ƒtƒHƒ‹ƒ_‚ğŠÜ‚Şƒtƒ@ƒCƒ‹‚Ö‚ÌƒpƒX
 */
 #deffunc local make_folder_in_path str path, local parent, local buf, local buf_size
     parent = getpath(path, 32)
@@ -27,18 +27,18 @@
     return
 
 #deffunc local fetch_included_files_recursive str hsp_source_file_path, array included_source_list, var included_source_list_index, local escaped_cwd, local file_content_buf, local file_line_count, local file_line, local include_file, local include_file_abs
-    // ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰
+    // ƒ\[ƒXƒtƒ@ƒCƒ‹‚ğƒ[ƒh
     notesel file_content_buf
     noteload hsp_source_file_path
     file_line_count = notemax
 
-    // ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¸­ã‚’1è¡Œãšã¤è¦‹ã‚‹
+    // ƒ\[ƒXƒtƒ@ƒCƒ‹‚Ì’†‚ğ1s‚¸‚ÂŒ©‚é
     repeat file_line_count
-        // #includeæ–‡ã§ã‚ã£ãŸã¨ãã¯ã€ãã®ãƒ•ã‚¡ã‚¤ãƒ«ã®å­˜åœ¨ã‚’ç¢ºã‹ã‚ã¦ãƒ•ãƒ«ãƒ‘ã‚¹ã§include_fileã«å–å¾—
+        // #include•¶‚Å‚ ‚Á‚½‚Æ‚«‚ÍA‚»‚Ìƒtƒ@ƒCƒ‹‚Ì‘¶İ‚ğŠm‚©‚ß‚Äƒtƒ‹ƒpƒX‚Åinclude_file‚Éæ“¾
         noteget file_line, cnt
         include_file = submatch(file_line, "#include\\s*\"([^\"]+)\"")
         if include_file == "" : continue
-        strrep include_file, "/", "\\" // ãƒ‘ã‚¹è¡¨ç¾ã¯\ã‚’ãƒ‡ãƒªãƒŸã‚¿ã¨ã—ã¦çµ±ä¸€ã™ã‚‹
+        strrep include_file, "/", "\\" // ƒpƒX•\Œ»‚Í\‚ğƒfƒŠƒ~ƒ^‚Æ‚µ‚Ä“ˆê‚·‚é
         sdim include_file_abs, 260
         offset = 0
         sdim full_path
@@ -50,7 +50,7 @@
         exist include_file_abs
         if strsize == -1 : continue
 
-        // æ—¢ã«ãƒªã‚¹ãƒˆã«å«ã¾ã‚Œã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«å†…ã¯ä¸­èº«ã®includeã‚’æ¤œç´¢ã—ãªã„
+        // Šù‚ÉƒŠƒXƒg‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚éƒtƒ@ƒCƒ‹“à‚Í’†g‚Ìinclude‚ğŒŸõ‚µ‚È‚¢
         found = 0
         repeat included_source_list_index
             if include_file_abs == included_source_list(cnt) {
@@ -60,11 +60,11 @@
         loop
         if found : continue
 
-        // ãƒªã‚¹ãƒˆã®æœ«å°¾ã«è¦‹ã¤ã‹ã£ãŸã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«ã‚’è¿½åŠ 
+        // ƒŠƒXƒg‚Ì––”ö‚ÉŒ©‚Â‚©‚Á‚½ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹‚ğ’Ç‰Á
         included_source_list(included_source_list_index) = include_file_abs
         included_source_list_index++
 
-        // ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«å†…ã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¤œç´¢
+        // ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹“à‚ÌƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹‚ğŒŸõ
         fetch_included_files_recursive include_file_abs, included_source_list, included_source_list_index
     loop
     ; chdir escaped_cwd
@@ -72,31 +72,31 @@
     return
 
 #deffunc local copy_file_used_in_test local file_num, local script_path_list, local index_buf
-    // ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ä¸€è¦§ç”¨ã®ãƒãƒƒãƒ•ã‚¡ã‚’æº–å‚™
+    // ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹ƒpƒXˆê———p‚Ìƒoƒbƒtƒ@‚ğ€”õ
     sdim script_path_list, 260, 512
     index_buf = 0
 
-    // ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ä¸€è¦§ã‚’å–å¾—
+    // ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ“à‚Ìƒtƒ@ƒCƒ‹ƒpƒXˆê——‚ğæ“¾
     dirlist2h@ 1
     dirlist2@ path_buf_size, "*", 1, '\\'
     sdim path_buf, path_buf_size + 1
     dirlist2r@ path_buf
 
-    // ãƒ‘ã‚¹ä¸€è¦§ã‚’1è¡Œãšã¤è¦‹ã‚‹
+    // ƒpƒXˆê——‚ğ1s‚¸‚ÂŒ©‚é
     notesel path_buf
     file_num = notemax
     repeat file_num
         notesel path_buf
         noteget path, cnt
 
-        // ãƒ‘ã‚¹ã«ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„ã¨ãã¯ç„¡è¦–
+        // ƒpƒX‚Éƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚È‚¢‚Æ‚«‚Í–³‹
         exist path
         if strsize == -1 : continue
 
-        // ãƒ†ã‚¹ãƒˆç”¨ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã®ãƒ•ã‚¡ã‚¤ãƒ«ãªã‚‰ç„¡è¦–
+        // ƒeƒXƒg—pˆêƒfƒBƒŒƒNƒgƒŠ“à‚Ìƒtƒ@ƒCƒ‹‚È‚ç–³‹
         if instr(path, 0, temp_test_env_dir) != -1 : continue
 
-        // ãƒ•ã‚¡ã‚¤ãƒ«ãŒhspã‚¹ã‚¯ãƒªãƒ—ãƒˆã§ã‚ã‚‹ã¨ãã€ã‚¹ã‚¯ãƒªãƒ—ãƒˆä¸€è¦§ã«åŠ ãˆã‚‹
+        // ƒtƒ@ƒCƒ‹‚ªhspƒXƒNƒŠƒvƒg‚Å‚ ‚é‚Æ‚«AƒXƒNƒŠƒvƒgˆê——‚É‰Á‚¦‚é
         if getpath(path, 2) == ".hsp" || getpath(path, 2) == ".as" {
             if is_relative_path(path) {
                 sdim full_path, 260
@@ -111,7 +111,7 @@
         }
     loop
 
-    // é›†ã¾ã£ãŸã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ã‚©ãƒ«ãƒ€æ§‹æˆã‚’ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªä»¥ä¸‹ã«ã‚³ãƒ”ãƒ¼ã™ã‚‹
+    // W‚Ü‚Á‚½ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹‚ÌƒtƒHƒ‹ƒ_\¬‚ğˆêƒfƒBƒŒƒNƒgƒŠˆÈ‰º‚ÉƒRƒs[‚·‚é
     repeat index_buf
         path = script_path_list(cnt)
         dest_path = temp_test_env_dir + "\\" + none_drive_letter(path)
@@ -125,30 +125,30 @@
     return
 
 /*
-ãƒ†ã‚¹ãƒˆã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ç”Ÿæˆã™ã‚‹
-å¼•æ•°
-    testfile_name: ã‚¹ã‚¯ãƒªãƒ—ãƒˆå†…ã§includeã•ã‚Œã‚‹ãƒ†ã‚¹ãƒˆã‚¹ã‚¯ãƒªãƒ—ãƒˆå
-    testlabel_name: ã‚¹ã‚¯ãƒªãƒ—ãƒˆå†…ã§includeã•ã‚Œã‚‹ãƒ†ã‚¹ãƒˆã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³ãƒ©ãƒ™ãƒ«å
-    runtime_name: ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’å®Ÿè¡Œã™ã‚‹ãƒ©ãƒ³ã‚¿ã‚¤ãƒ å
-è¿”ã‚Šå€¤
-    ãƒ†ã‚¹ãƒˆã‚¹ã‚¯ãƒªãƒ—ãƒˆãŒä¿å­˜ã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ãƒ‘ã‚¹
+ƒeƒXƒgƒXƒNƒŠƒvƒg‚ğ¶¬‚·‚é
+ˆø”
+    testfile_name: ƒXƒNƒŠƒvƒg“à‚Åinclude‚³‚ê‚éƒeƒXƒgƒXƒNƒŠƒvƒg–¼
+    testlabel_name: ƒXƒNƒŠƒvƒg“à‚Åinclude‚³‚ê‚éƒeƒXƒgƒTƒuƒ‹[ƒ`ƒ“ƒ‰ƒxƒ‹–¼
+    runtime_name: ƒXƒNƒŠƒvƒg‚ğÀs‚·‚éƒ‰ƒ“ƒ^ƒCƒ€–¼
+•Ô‚è’l
+    ƒeƒXƒgƒXƒNƒŠƒvƒg‚ª•Û‘¶‚³‚ê‚½ƒtƒ@ƒCƒ‹‚Ö‚ÌƒpƒX
  */
 #defcfunc make_temp_test str testfile_name, str testlabel_name, str runtime_name
-    // ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’ä½œæˆ
+    // ˆêƒfƒBƒŒƒNƒgƒŠ‚ğì¬
     temp_test_env_dir = "__tmpenv"
     mkdir temp_test_env_dir
     cur_dir_in_temp_dir = dir_cur + "\\" + temp_test_env_dir + "\\" + none_drive_letter(dir_cur)
 
-    // ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªä»¥ä¸‹ã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ä¸€æ™‚ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«ã‚³ãƒ”ãƒ¼
+    // ƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠˆÈ‰º‚ÌƒXƒNƒŠƒvƒg‚ğˆêƒfƒBƒŒƒNƒgƒŠ‚ÉƒRƒs[
     copy_file_used_in_test
 
-    // å‘¼ã³å‡ºã—ç”¨ã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ä½œæˆ
+    // ŒÄ‚Ño‚µ—p‚ÌƒXƒNƒŠƒvƒg‚ğì¬
     temp_test_name = "__testtmp.hsp"
     generated_code_buf = "#runtime \"" + runtime_name + "\"\n"
     generated_code_buf += "#include \"kernel32.as\"\n"
     generated_code_buf += "AllocConsole\n"
     generated_code_buf += "goto *__start\n"
-    generated_code_buf += "#include \"test.as\"\n"
+    generated_code_buf += "#include \"hsptest_common.as\"\n"
     generated_code_buf += "#include \"" + testfile_name + "\"\n"
     generated_code_buf += "*__start\n"
     generated_code_buf += "gosub *__testinit\n"
@@ -165,15 +165,15 @@
     return generated_code_path
 
 /*
-æ¸¡ã—ãŸãƒ•ã‚©ãƒ«ãƒ€ã®ä¸­èº«ã‚’å…¨ã¦å‰Šé™¤ã™ã‚‹
-å¼•æ•°
-    path_to_dir: ä¸­èº«ã‚’ç©ºã«ã—ãŸã„ãƒ•ã‚©ãƒ«ãƒ€ã¸ã®ãƒ‘ã‚¹
+“n‚µ‚½ƒtƒHƒ‹ƒ_‚Ì’†g‚ğ‘S‚Äíœ‚·‚é
+ˆø”
+    path_to_dir: ’†g‚ğ‹ó‚É‚µ‚½‚¢ƒtƒHƒ‹ƒ_‚Ö‚ÌƒpƒX
 */
 #deffunc local delete_all_file str path_to_dir, local now_cwd, local dirs, local dir_num, local files, local file_num, local name
-    // æŒ‡å®šã—ãŸãƒ•ã‚©ãƒ«ãƒ€å†…ã«ç§»å‹•
+    // w’è‚µ‚½ƒtƒHƒ‹ƒ_“à‚ÉˆÚ“®
     now_cwd = dir_cur
     chdir path_to_dir
-    // ãƒ•ã‚©ãƒ«ãƒ€ã‚’ã¾ãšå‰Šé™¤
+    // ƒtƒHƒ‹ƒ_‚ğ‚Ü‚¸íœ
     dirlist dirs, "*", 5
     dir_num = stat
     repeat dir_num
@@ -182,7 +182,7 @@
         delete_all_file name
         RemoveDirectory name
     loop
-    // ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤
+    // ƒtƒ@ƒCƒ‹‚ğíœ
     dirlist files, "*", 1
     file_num = stat
     repeat file_num
@@ -190,12 +190,12 @@
         noteget name, cnt
         delete name
     loop
-    // å…ƒã®ãƒ•ã‚©ãƒ«ãƒ€ã«å¸°ã‚‹
+    // Œ³‚ÌƒtƒHƒ‹ƒ_‚É‹A‚é
     chdir now_cwd
     return
 
 /*
-ãƒ†ã‚¹ãƒˆã‚¹ã‚¯ãƒªãƒ—ãƒˆãŠã‚ˆã³axãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤ã™ã‚‹
+ƒeƒXƒgƒXƒNƒŠƒvƒg‚¨‚æ‚Ñaxƒtƒ@ƒCƒ‹‚ğíœ‚·‚é
  */
 #deffunc delete_temp_test
     delete_all_file temp_test_env_dir

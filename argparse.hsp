@@ -4,10 +4,10 @@
 #module
 
 /*
-å¼•æ•°ãƒ‘ãƒ¼ã‚µã®åˆæœŸåŒ–ã‚’è¡Œã†
-å¼•æ•°
-    argnum: ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãŒå—ã‘å–ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»¥å¤–ã®å¼•æ•°ã®æ•°
-    options: ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»•æ§˜ãŒè¨˜è¿°ã•ã‚ŒãŸæ–‡å­—åˆ—
+ˆø”ƒp[ƒT‚Ì‰Šú‰»‚ğs‚¤
+ˆø”
+    argnum: ƒvƒƒOƒ‰ƒ€‚ªó‚¯æ‚éƒIƒvƒVƒ‡ƒ“ˆÈŠO‚Ìˆø”‚Ì”
+    options: ƒIƒvƒVƒ‡ƒ“d—l‚ª‹Lq‚³‚ê‚½•¶š—ñ
 */
 #deffunc local parse_init int argnum, str options
     options_buf = options
@@ -28,10 +28,10 @@
     return
 
 /*
-ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã‚’å­—å¥ã”ã¨ã«åˆ†å‰²ã™ã‚‹
-å¼•æ•°
-    cmdline_buf: ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ãŒæ ¼ç´ã•ã‚ŒãŸæ–‡å­—åˆ—å¤‰æ•°
-    splitted_cmdline: åˆ†å‰²ã•ã‚ŒãŸå¼•æ•°ãŒæ ¼ç´ã•ã‚Œã‚‹å‡ºåŠ›ç”¨ã®æ–‡å­—åˆ—å‹é…åˆ—
+ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ğš‹å‚²‚Æ‚É•ªŠ„‚·‚é
+ˆø”
+    cmdline_buf: ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ªŠi”[‚³‚ê‚½•¶š—ñ•Ï”
+    splitted_cmdline: •ªŠ„‚³‚ê‚½ˆø”‚ªŠi”[‚³‚ê‚éo—Í—p‚Ì•¶š—ñŒ^”z—ñ
 */
 #deffunc split_args var cmdline_buf, array splitted_cmdline, local element_buf, local write_index, local cmdline_index, local str_start
     sdim element_buf, 256
@@ -74,11 +74,11 @@
     return cmdline_index
 
 /*
-ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã‚’ãƒ‘ãƒ¼ã‚¹ã™ã‚‹
-å¼•æ•°:
-    argnum: ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãŒå—ã‘å–ã‚‹ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»¥å¤–ã®å¼•æ•°ã®æ•°
-    options: ã‚ªãƒ—ã‚·ãƒ§ãƒ³ä»•æ§˜ãŒè¨˜è¿°ã•ã‚ŒãŸæ–‡å­—åˆ—
-    cmdline: ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°
+ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ğƒp[ƒX‚·‚é
+ˆø”:
+    argnum: ƒvƒƒOƒ‰ƒ€‚ªó‚¯æ‚éƒIƒvƒVƒ‡ƒ“ˆÈŠO‚Ìˆø”‚Ì”
+    options: ƒIƒvƒVƒ‡ƒ“d—l‚ª‹Lq‚³‚ê‚½•¶š—ñ
+    cmdline: ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”
 */
 #deffunc parse_args int argnum, str options, str cmdline, local cmdline_buf
     parse_init argnum, options
@@ -125,29 +125,29 @@
     return
 
 /*
-å¼•æ•°ã‚’å–å¾—ã™ã‚‹
-å¼•æ•°
-    arg: å¼•æ•°ç•ªå·
-è¿”ã‚Šå€¤
-    å¼•æ•°ã®å€¤
+ˆø”‚ğæ“¾‚·‚é
+ˆø”
+    arg: ˆø””Ô†
+•Ô‚è’l
+    ˆø”‚Ì’l
 */
 #defcfunc get_arg int arg
     return argument_value(arg)
 
 /*
-å¼•æ•°ã®æ•°ï¼ˆã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’é™¤ãï¼‰ã‚’è¿”ã™
-è¿”ã‚Šå€¤
-    å¼•æ•°ã®æ•°
+ˆø”‚Ì”iƒIƒvƒVƒ‡ƒ“‚ğœ‚­j‚ğ•Ô‚·
+•Ô‚è’l
+    ˆø”‚Ì”
 */
 #defcfunc get_arg_num
     return detected_args
 
 /*
-ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°å†…ã«å­˜åœ¨ã—ã¦ã„ã‚‹ã‹ã‚’åˆ¤å®šã™ã‚‹
-å¼•æ•°
-    arg_name: ã‚ªãƒ—ã‚·ãƒ§ãƒ³å
-è¿”ã‚Šå€¤
-    ã‚ªãƒ—ã‚·ãƒ§ãƒ³ãŒå­˜åœ¨ã—ã¦ã„ã‚‹å ´åˆtrue
+ƒIƒvƒVƒ‡ƒ“‚ªƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”“à‚É‘¶İ‚µ‚Ä‚¢‚é‚©‚ğ”»’è‚·‚é
+ˆø”
+    arg_name: ƒIƒvƒVƒ‡ƒ“–¼
+•Ô‚è’l
+    ƒIƒvƒVƒ‡ƒ“‚ª‘¶İ‚µ‚Ä‚¢‚éê‡true
 */
 #defcfunc is_exist_option str arg_name, local retval
     retval = 0
@@ -160,11 +160,11 @@
     return retval
 
 /*
-ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã«æ¸¡ã•ã‚ŒãŸå¼•æ•°ã‚’å–å¾—ã™ã‚‹
-å¼•æ•°
-    option_name: ã‚ªãƒ—ã‚·ãƒ§ãƒ³å
-è¿”ã‚Šå€¤
-    ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã«æ¸¡ã•ã‚ŒãŸå¼•æ•°
+ƒIƒvƒVƒ‡ƒ“‚É“n‚³‚ê‚½ˆø”‚ğæ“¾‚·‚é
+ˆø”
+    option_name: ƒIƒvƒVƒ‡ƒ“–¼
+•Ô‚è’l
+    ƒIƒvƒVƒ‡ƒ“‚É“n‚³‚ê‚½ˆø”
 */
 #defcfunc get_option_arg str option_name, local retval
     retval = ""

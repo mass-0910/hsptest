@@ -4,7 +4,7 @@
 #module
 
 /*
-ã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‘ãƒ¼ã‚µã®åˆæœŸåŒ–ã‚’è¡Œã†
+ƒAƒmƒe[ƒVƒ‡ƒ“ƒp[ƒT‚Ì‰Šú‰»‚ğs‚¤
 */
 #deffunc annotation_init
     annotation_attr_names = {"
@@ -22,9 +22,9 @@
     return
 
 /*
-ã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³è¡Œã‚’ãƒ‘ãƒ¼ã‚¹ã™ã‚‹
-å¼•æ•°
-    annotation_line: ã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ãŒæ›¸ã‹ã‚Œã¦ã‚ã‚‹è¡Œã®æ–‡å­—åˆ—
+ƒAƒmƒe[ƒVƒ‡ƒ“s‚ğƒp[ƒX‚·‚é
+ˆø”
+    annotation_line: ƒAƒmƒe[ƒVƒ‡ƒ“‚ª‘‚©‚ê‚Ä‚ ‚és‚Ì•¶š—ñ
 */
 #deffunc annotation_parse str annotation_line
     annotation_str = submatch(annotation_line, ";@\s*(.+)", 0, 0)
@@ -43,11 +43,11 @@
     return
 
 /*
-ã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã«æ›¸ã‹ã‚ŒãŸå±æ€§(è¨­å®šé …ç›®)ã®å€¤ã‚’å–å¾—ã™ã‚‹
-å¼•æ•°
-    attr_name: è¨­å®šé …ç›®å
-è¿”ã‚Šå€¤
-    è¨­å®šé …ç›®ã®å€¤
+ƒAƒmƒe[ƒVƒ‡ƒ“‚É‘‚©‚ê‚½‘®«(İ’è€–Ú)‚Ì’l‚ğæ“¾‚·‚é
+ˆø”
+    attr_name: İ’è€–Ú–¼
+•Ô‚è’l
+    İ’è€–Ú‚Ì’l
 */
 #defcfunc get_annotation_attr_val str attr_name
     retval = ""

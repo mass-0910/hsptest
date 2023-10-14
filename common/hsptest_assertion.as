@@ -1,7 +1,7 @@
 #ifndef assertion_as_included
 #define assertion_as_included
 
-#include "result_format.as"
+#include "hsptest_result_format.as"
 
 #module
 

@@ -1,15 +1,15 @@
-#include "assertion.as" ; å„ç¨®assertionã‚’includeã™ã‚‹
+#include "hsptest_assertion.as" ; ŠeŽíassertion‚ðinclude‚·‚é
 #include "ext.as"
 
-;ãƒ©ãƒ™ãƒ«åã¯*testXXX...ã®ã‚ˆã†ãªåå‰ã«ã—ã¦ãã ã•ã„
-;ãƒ†ã‚¹ãƒˆã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³
+;ƒ‰ƒxƒ‹–¼‚Í*testXXX...‚Ì‚æ‚¤‚È–¼‘O‚É‚µ‚Ä‚­‚¾‚³‚¢
+;ƒeƒXƒgƒTƒuƒ‹[ƒ`ƒ“
 *test1
     b = 2
     a = 10 / b
     assertEqual a, 5, "a is not 5"
     return
 
-;ãƒ†ã‚¹ãƒˆã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³
+;ƒeƒXƒgƒTƒuƒ‹[ƒ`ƒ“
 *test2
     s = "test"
     strrep s, "t", "s"
@@ -17,11 +17,11 @@
     assertEqual s, "sess"
     return
 
-;ãƒ†ã‚¹ãƒˆã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³
+;ƒeƒXƒgƒTƒuƒ‹[ƒ`ƒ“
 *test3
     mes "example"
     mes "output"
     zero = 0
     gosub *subroutine
-    divide_0 = 1 / zero ;0å‰²ã‚Šã‚’ç™ºç”Ÿã•ã›ã‚‹
+    divide_0 = 1 / zero ;0Š„‚è‚ð”­¶‚³‚¹‚é
     return

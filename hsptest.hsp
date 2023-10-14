@@ -10,13 +10,13 @@
 #cfunc global PathRelativePathToA "PathRelativePathToA" sptr, sptr, sptr, sptr, sptr
 
 #include "hspdef.as"
-#include "exception_code.as"
+#include "hsptest_exception_code.as"
 #include "hspext.as"
 #include "hspcmp.as"
 #include "kernel32.as"
 #include "mod_regexp.as"
 #include "hspinet.as"
-#include "result_format.as"
+#include "hsptest_result_format.as"
 #include "argparse.hsp"
 #include "make_testcall_script.hsp"
 #include "console.hsp"
@@ -28,7 +28,7 @@
 
 #define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
 
-version = "0.8"
+version = "0.9"
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -109,11 +109,11 @@ repeat search_entry_num
     }
 
     if strsize != -1 {
-        // 表示されるファイル名の整形
+        // �\�������t�@�C�����̐��`
         sdim rel_path, 260
         abs_pathes = get_absolute_path("."), get_absolute_path(entry)
         a = PathRelativePathToA(varptr(rel_path), abs_pathes(0), 0x10, abs_pathes(1), 0)
-        strrep rel_path, "\\", "/" // バックスラッシュをパスのデリミタにすると、テストルーチン呼び出しスクリプトのinclude文に突っ込んだときにエスケープシーケンスと誤認されるため、デリミタをスラッシュに置換する
+        strrep rel_path, "\\", "/" // �o�b�N�X���b�V�����p�X�̃f���~�^�ɂ���ƁA�e�X�g���[�`���Ăяo���X�N���v�g��include���ɓ˂����񂾂Ƃ��ɃG�X�P�[�v�V�[�P���X�ƌ�F����邽�߁A�f���~�^���X���b�V���ɒu������
         strrep rel_path, "./", ""
         notesel testcodes
         noteadd rel_path + ";" + getpath(entry, 32)

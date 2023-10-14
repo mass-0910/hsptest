@@ -1,0 +1,85 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    name: リリース作業
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: cache HSP3.6
+        id: cache-hsp36
+        uses: actions/cache@v3
+        with:
+          path: C:/hsp36
+          key: ${{ runner.os }}-hsp36-official
+          restore-keys: |
+            ${{ runner.os }}-hsp36-official
+
+      - name: download HSP3.6
+        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
+        shell: pwsh
+        run: Invoke-Webrequest -Uri https://www.onionsoft.net/hsp/file/hsp36.zip -OutFile hsp36.zip
+
+      - name: unzip hsp36en.zip
+        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
+        run: 7z x hsp36.zip -oC:/
+
+      - name: add hsp36 to path
+        shell: pwsh
+        run: echo "C:/hsp36" >> $env:GITHUB_PATH
+
+      - name: compile hsptest
+        shell: pwsh
+        run: |
+          hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
+          cp common/* C:/hsp36/common/
+          hsp3cl compile.ax
+
+      - name: create artifact zip file
+        shell: pwsh
+        run: |
+          mkdir hsptest
+          Copy-Item -Recurse -Path common -Destination hsptest/common
+          Copy-Item -Path hsptest.exe -Destination hsptest
+          Copy-Item -Path install.bat -Destination hsptest
+          Copy-Item -Path run_hsptest.bat -Destination hsptest
+          7z a -tzip hsptest.zip hsptest
+
+      - name: get previout tag name
+        id: get_previous_tag
+        shell: bash
+        run: |
+          git fetch -a
+          echo value=$(git tag --sort "-committerdate" | cut -d$'\n' -f2) >> $GITHUB_OUTPUT
+
+      - name: fetch auto generated release note
+        id: generate_release_note
+        shell: bash
+        run: |
+          echo "$(curl -X POST -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/releases/generate-notes -d '{"tag_name":"${{ github.ref_name }}", "previous_tag_name":"${{ steps.get_previous_tag.outputs.value }}", "configuration_file_path":".github/release_note.yml"}' | jq .body | sed 's/"//g' | sed s/\\\\n/\\$'\n'/g | sed 's/What'\''s Changed/${{ steps.get_previous_tag.outputs.value }}からの変更点/g')" >> generated_release_note.txt
+
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: hsptest ${{ github.ref_name }}
+          body_path: ./generated_release_note.txt
+
+      - name: upload zip to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./hsptest.zip
+          asset_name: hsptest.zip
+          asset_content_type: application/zip

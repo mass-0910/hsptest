@@ -2,7 +2,7 @@
 #include "include\\a\\module2.as"
 #include "include\\module3.as"
 #include "include/module4.as"
-#include "assertion.as"
+#include "hsptest_assertion.as"
 
 *test1
     assertEqual func1(), 1

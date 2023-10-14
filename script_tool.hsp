@@ -4,10 +4,10 @@
 #module
 
 /*
-å¼•æ•°ã§æ¸¡ã•ã‚ŒãŸHSP3ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‹ã‚‰ã‚¢ãƒŽãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ä»¥å¤–ã®ã‚³ãƒ¡ãƒ³ãƒˆã‚’çœã„ãŸã‚‚ã®ã‚’ä½œæˆã™ã‚‹
-å¼•æ•°
-    out_buf: ã‚³ãƒ¡ãƒ³ãƒˆã‚’çœã„ãŸã‚¹ã‚¯ãƒªãƒ—ãƒˆãŒæ ¼ç´ã•ã‚Œã‚‹å¤‰æ•°
-    script_buf: å…ƒã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆãŒæ ¼ç´ã•ã‚ŒãŸå¤‰æ•°
+ˆø”‚Å“n‚³‚ê‚½HSP3ƒXƒNƒŠƒvƒg‚©‚çƒAƒmƒe[ƒVƒ‡ƒ“ˆÈŠO‚ÌƒRƒƒ“ƒg‚ðÈ‚¢‚½‚à‚Ì‚ðì¬‚·‚é
+ˆø”
+    out_buf: ƒRƒƒ“ƒg‚ðÈ‚¢‚½ƒXƒNƒŠƒvƒg‚ªŠi”[‚³‚ê‚é•Ï”
+    script_buf: Œ³‚ÌƒXƒNƒŠƒvƒg‚ªŠi”[‚³‚ê‚½•Ï”
 */
 #deffunc remove_unused_data var out_buf, var script_buf
     comment_mode = 0 // 0: not comment, 1: one line comment, 2: multiline comment

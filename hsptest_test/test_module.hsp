@@ -1,5 +1,5 @@
-#include "assertion.as"
-#include "../result_format.as"
+#include "hsptest_assertion.as"
+#include "../hsptest_result_format.as"
 
 *test1
     stdout = get_pass_result_format()
