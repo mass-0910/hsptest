@@ -6,7 +6,7 @@ HSP3言語で書かれたプログラムをテストするためのフレーム�
 
 ## インストール
 
-hsptestをコマンドラインからhsptestを実行する場合は、以下の手順でインストールしてください。
+hsptestは以下の手順でインストールしてください。
 
 1. HSP3インストールフォルダ(例：`C:/hsp36`)を環境変数PATHに追加します
 2. [Releases](https://github.com/mass-0910/hsptest/releases/latest)からhsptest.zipをダウンロードします
