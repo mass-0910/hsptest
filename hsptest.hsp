@@ -28,7 +28,7 @@
 
 #define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
 
-version = "0.8"
+version = "0.9"
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -109,11 +109,11 @@ repeat search_entry_num
     }
 
     if strsize != -1 {
-        // •\¦‚³‚ê‚éƒtƒ@ƒCƒ‹–¼‚Ì®Œ`
+        // ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½`
         sdim rel_path, 260
         abs_pathes = get_absolute_path("."), get_absolute_path(entry)
         a = PathRelativePathToA(varptr(rel_path), abs_pathes(0), 0x10, abs_pathes(1), 0)
-        strrep rel_path, "\\", "/" // ƒoƒbƒNƒXƒ‰ƒbƒVƒ…‚ğƒpƒX‚ÌƒfƒŠƒ~ƒ^‚É‚·‚é‚ÆAƒeƒXƒgƒ‹[ƒ`ƒ“ŒÄ‚Ño‚µƒXƒNƒŠƒvƒg‚Ìinclude•¶‚É“Ë‚Á‚ñ‚¾‚Æ‚«‚ÉƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX‚ÆŒë”F‚³‚ê‚é‚½‚ßAƒfƒŠƒ~ƒ^‚ğƒXƒ‰ƒbƒVƒ…‚É’uŠ·‚·‚é
+        strrep rel_path, "\\", "/" // ï¿½oï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½pï¿½Xï¿½Ìƒfï¿½ï¿½ï¿½~ï¿½^ï¿½É‚ï¿½ï¿½ï¿½ÆAï¿½eï¿½Xï¿½gï¿½ï¿½ï¿½[ï¿½`ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½gï¿½ï¿½includeï¿½ï¿½ï¿½É“Ë‚ï¿½ï¿½ï¿½ï¿½ñ‚¾‚Æ‚ï¿½ï¿½ÉƒGï¿½Xï¿½Pï¿½[ï¿½vï¿½Vï¿½[ï¿½Pï¿½ï¿½ï¿½Xï¿½ÆŒï¿½Fï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßAï¿½fï¿½ï¿½ï¿½~ï¿½^ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½É’uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         strrep rel_path, "./", ""
         notesel testcodes
         noteadd rel_path + ";" + getpath(entry, 32)
