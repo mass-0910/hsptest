@@ -49,6 +49,8 @@ jobs:
           Copy-Item -Path hsptest.exe -Destination hsptest
           Copy-Item -Path install.bat -Destination hsptest
           Copy-Item -Path run_hsptest.bat -Destination hsptest
+          Copy-Item -Path readme.txt -Destination hsptest
+          Copy-Item -Path LICENSE.md -Destination hsptest
           7z a -tzip hsptest.zip hsptest
 
       - name: get previout tag name
