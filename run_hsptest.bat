@@ -17,7 +17,7 @@ if not defined hsp_dir (
 if not defined hsp_dir (
     echo HSP3のインストールフォルダが見つかりませんでした。
     echo %0をメモ帳などのエディタで開き、7行目のhsp_dir変数に、ご自分のPCのHSP3インストールフォルダへのパスを書き込んでください。
-    echo 例）set hsp_dir=%USERPROFILE%\hsp36
+    echo 例）set hsp_dir=%USERPROFILE%\hsp37
     pause
     exit /B 1
 )
