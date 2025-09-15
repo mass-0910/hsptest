@@ -12,33 +12,33 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: cache HSP3.6
-        id: cache-hsp36
+      - name: cache HSP3.7
+        id: cache-hsp37
         uses: actions/cache@v3
         with:
-          path: C:/hsp36
-          key: ${{ runner.os }}-hsp36-official
+          path: C:/hsp37
+          key: ${{ runner.os }}-hsp37-official
           restore-keys: |
-            ${{ runner.os }}-hsp36-official
+            ${{ runner.os }}-hsp37-official
 
-      - name: download HSP3.6
-        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
+      - name: download HSP3.7
+        if: ${{ steps.cache-hsp37.outputs.cache-hit != 'true' }}
         shell: pwsh
-        run: Invoke-Webrequest -Uri https://www.onionsoft.net/hsp/file/hsp36.zip -OutFile hsp36.zip
+        run: Invoke-Webrequest -Uri https://www.onionsoft.net/hsp/file/hsp37.zip -OutFile hsp37.zip
 
-      - name: unzip hsp36en.zip
-        if: ${{ steps.cache-hsp36.outputs.cache-hit != 'true' }}
-        run: 7z x hsp36.zip -oC:/
+      - name: unzip hsp37en.zip
+        if: ${{ steps.cache-hsp37.outputs.cache-hit != 'true' }}
+        run: 7z x hsp37.zip -oC:/
 
-      - name: add hsp36 to path
+      - name: add hsp37 to path
         shell: pwsh
-        run: echo "C:/hsp36" >> $env:GITHUB_PATH
+        run: echo "C:/hsp37" >> $env:GITHUB_PATH
 
       - name: compile hsptest
         shell: pwsh
         run: |
-          hspcmp -o"compile.ax" --compath="C:/hsp36/common" ./compile.hsp
-          cp common/* C:/hsp36/common/
+          hspcmp -o"compile.ax" --compath="C:/hsp37/common" ./compile.hsp
+          cp common/* C:/hsp37/common/
           hsp3cl compile.ax
 
       - name: create artifact zip file

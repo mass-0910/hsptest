@@ -18,7 +18,7 @@ if "%1"=="" (
 if not defined hsp_dir (
     echo HSP3のインストールフォルダが見つかりませんでした。
     echo このバッチファイルの引数にHSP3のインストールフォルダのパスを入力してください。
-    echo 例）> install.bat C:\hsp36
+    echo 例）> install.bat C:\hsp37
     pause
     exit /B 1
 )

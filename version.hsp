@@ -1,0 +1,64 @@
+#ifndef version_hsp_included
+#define version_hsp_included
+
+#module
+
+#uselib "Api-ms-win-core-version-l1-1-0.dll"
+#cfunc GetFileVersionInfoSize "GetFileVersionInfoSizeA" sptr,int
+#cfunc GetFileVersionInfo "GetFileVersionInfoA" sptr,int,int,int
+#func VerQueryValue "VerQueryValueA" int,str,int,int
+
+/*
+hsptestのバージョンを返す
+返り値
+    hsptestのバージョンを表す文字列
+*/
+#defcfunc get_hsptest_exe_version
+    // hsptest.exeへのパスを生成
+    hsptest_exe_path = dir_exe + "\\hsptest.exe"
+    exist hsptest_exe_path
+    if strsize == -1 {
+        // スクリプトから直接実行されている場合はdebugバージョンを返す
+        return "debug"
+    }
+
+    // win32apiからexeのバージョン情報を取得
+    dummy = 0
+    version_info_size = GetFileVersionInfoSize(varptr(hsptest_exe_path),varptr(dummy))
+    sdim hsptest_version_data, version_info_size
+    succeed = GetFileVersionInfo(varptr(hsptest_exe_path), 0, version_info_size, varptr(hsptest_version_data))
+    if succeed == 0 {
+        return "null"
+    }
+    ptr = 0
+    VerQueryValue varptr(hsptest_version_data), "\\", varptr(ptr), varptr(dummy)
+    dupptr fileinfo, ptr, 52, 4
+
+    // バージョン情報から文字列を生成
+    hsptest_version = "" + _get_high_word(fileinfo(4)) + "." + _get_low_word(fileinfo(4)) // メジャーバージョンとマイナーバージョンは必ず入れる
+    if _get_high_word(fileinfo(5)) != 0 : hsptest_version += "." + _get_high_word(fileinfo(5)) // パッチバージョンは0ではないときにのみ入れる
+    return hsptest_version
+
+/*
+上位ワードを取得する
+引数
+    value: 取得元の値
+返り値
+    valueの上位ワード
+*/
+#defcfunc _get_high_word int value
+    return (value & 0xFFFF0000) >> 16
+
+/*
+下位ワードを取得する
+引数
+    value: 取得元の値
+返り値
+    valueの下位ワード
+*/
+#defcfunc _get_low_word int value
+    return value & 0x0000FFFF
+
+#global
+
+#endif

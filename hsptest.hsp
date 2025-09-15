@@ -25,10 +25,11 @@
 #include "util.hsp"
 #include "annotation.hsp"
 #include "script_tool.hsp"
+#include "version.hsp"
 
 #define HSPTEST_TESTCALL_AX_NAME "__hsptest_start.ax"
 
-version = "0.9"
+version = get_hsptest_exe_version()
 
 sdim stdout, 2000
 sdim ln, 2000
@@ -109,11 +110,10 @@ repeat search_entry_num
     }
 
     if strsize != -1 {
-        // �\�������t�@�C�����̐��`
         sdim rel_path, 260
         abs_pathes = get_absolute_path("."), get_absolute_path(entry)
         a = PathRelativePathToA(varptr(rel_path), abs_pathes(0), 0x10, abs_pathes(1), 0)
-        strrep rel_path, "\\", "/" // �o�b�N�X���b�V�����p�X�̃f���~�^�ɂ���ƁA�e�X�g���[�`���Ăяo���X�N���v�g��include���ɓ˂����񂾂Ƃ��ɃG�X�P�[�v�V�[�P���X�ƌ�F����邽�߁A�f���~�^���X���b�V���ɒu������
+        strrep rel_path, "\\", "/"
         strrep rel_path, "./", ""
         notesel testcodes
         noteadd rel_path + ";" + getpath(entry, 32)
