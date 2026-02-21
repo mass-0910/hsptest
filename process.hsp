@@ -1,0 +1,46 @@
+#ifndef process_hsp_included
+#define process_hsp_included
+
+#module
+
+/*
+プロセスを実行する
+引数
+    commandline: 実行するコマンドライン
+    out_stdout: プロセスからの標準出力を格納する変数
+*/
+#deffunc execute_test_process str commandline, var out_stdout
+    dim process_info, 4
+    dim sa_attr, 3
+    runtime_stdout_handle_rd = 0 : runtime_stdout_handle_wr = 0
+    sa_attr(0) = 12 : sa_attr(1) = 0 : sa_attr(2) = 1
+    CreatePipe varptr(runtime_stdout_handle_rd), varptr(runtime_stdout_handle_wr), varptr(sa_attr), 0
+    dim startup_info, 17
+    startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
+    CreateProcess 0, commandline, 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+    CloseHandle runtime_stdout_handle_wr
+    if double(get_annotation_attr_val("timeout")) <= 0.0 {
+        timeout = 0xFFFFFFFF
+    } else {
+        timeout = int(double(get_annotation_attr_val("timeout")) * 1000.0)
+    }
+    waitforsingleobject_status = WaitForSingleObject(process_info(0), timeout)
+    if waitforsingleobject_status == 0x00000102 { // timeout
+        out_stdout = get_fail_result_format(-1, "?", "Test timed out (" + get_annotation_attr_val("timeout") + " seconds)") + "\n"
+        TerminateProcess process_info(0), -1
+    } else {
+        read_size = 0
+        memset out_stdout, 0, varsize(out_stdout)
+        sdim tmpbuf, 256
+        repeat
+            memset tmpbuf, 0, varsize(tmpbuf)
+            if ReadFile(runtime_stdout_handle_rd, varptr(tmpbuf), varsize(tmpbuf), varptr(read_size), 0) == 0 : break
+            out_stdout += tmpbuf
+        loop
+    }
+    CloseHandle runtime_stdout_handle_rd
+    return
+
+#global
+
+#endif
