@@ -1,0 +1,10 @@
+#include "hsptest_assertion.as"
+
+;@ timeout = 1
+*test_too_long_output
+    output = "a"
+    repeat 10000
+        output += "a"
+    loop
+    mes output
+    return
