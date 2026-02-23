@@ -1,0 +1,109 @@
+#ifndef process_hsp_included
+#define process_hsp_included
+
+#module
+
+#uselib "winmm.dll"
+#cfunc timeGetTime "timeGetTime"
+
+/*
+プロセスを実行する
+引数
+    commandline: 実行するコマンドライン
+    out_stdout: プロセスからの標準出力を格納する変数
+*/
+#deffunc execute_test_process str commandline, var out_stdout
+    if double(get_annotation_attr_val("timeout")) <= 0.0 {
+        timeout = 0xFFFFFFFF
+    } else {
+        timeout = int(double(get_annotation_attr_val("timeout")) * 1000.0)
+    }
+    _create_process commandline, process_handle, read_handle
+    memset out_stdout, 0, varsize(out_stdout)
+    dim overrapped, 5
+    overrapped(4) = CreateEvent(0, 1, 0, 0)
+    start_time = timeGetTime()
+    sdim tmpbuf, 4096
+    handles = process_handle, overrapped(4)
+    read_size = 0
+    repeat
+        memset tmpbuf, 0, varsize(tmpbuf)
+        read_result = ReadFile(read_handle, varptr(tmpbuf), varsize(tmpbuf) - 1, varptr(read_size), varptr(overrapped))
+        if read_result {
+            out_stdout += tmpbuf
+        } else : if GetLastError() == 997 /* ERROR_IO_PENDING */ {
+            wait_result = WaitForSingleObject(overrapped(4), _compute_win32_timeout_value(timeout, start_time))
+            if wait_result == 0x00000102 { // timeout
+                out_stdout = get_fail_result_format(-1, "?", "Test timed out (" + get_annotation_attr_val("timeout") + " seconds)") + "\n"
+                TerminateProcess process_handle, -1
+                break
+            }
+            if GetOverlappedResult(read_handle, varptr(overrapped), varptr(read_size), 0) {
+                if read_size > 0 {
+                    out_stdout += tmpbuf
+                } else {
+                    break
+                }
+            }
+            ResetEvent overrapped(4)
+        } else {
+            break
+        }
+    loop
+    CloseHandle read_handle
+    return
+
+/*
+パイプ付きでプロセスを起動する
+引数
+    commandline: 実行するコマンドライン
+    out_process_handle: プロセスハンドルを格納する変数
+    out_read_pipe: プロセスからの出力の読み取りパイプハンドルを格納する変数
+*/
+#deffunc _create_process str commandline, var out_process_handle, var out_read_pipe, local process_info, local runtime_stdout_handle_rd, local runtime_stdout_handle_wr, local startup_info
+    dim process_info, 4
+    runtime_stdout_handle_rd = 0 : runtime_stdout_handle_wr = 0
+    _create_pipe runtime_stdout_handle_rd, runtime_stdout_handle_wr
+    dim startup_info, 17
+    startup_info(0) = 68 : startup_info(11) = 0x00000100 | 0x00000001 : startup_info(15) = runtime_stdout_handle_wr : startup_info(16) = runtime_stdout_handle_wr
+    CreateProcess 0, commandline, 0, 0, 1, 0, 0, 0, varptr(startup_info), varptr(process_info)
+    CloseHandle runtime_stdout_handle_wr
+    out_read_pipe = runtime_stdout_handle_rd
+    out_process_handle = process_info(0)
+    return
+
+/*
+名前付きパイプを生成する
+引数
+    hr_pipe: 読み込みパイプ格納先変数
+    hw_pipe: 書き込みパイプ格納先変数
+*/
+#deffunc _create_pipe var hr_pipe, var hw_pipe, local sa_attr, local pipe_name
+    dim sa_attr, 3
+    sa_attr(0) = 12 : sa_attr(1) = 0 : sa_attr(2) = 1
+    pipe_name = "\\\\.\\pipe\\hsptest_pipe_" + timeGetTime()
+    hr_pipe = CreateNamedPipeA(pipe_name, 0x40000003 /* PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED */, 0x00000000/* PIPE_TYPE_BYTE | PIPE_WAIT */, 2, 4096, 4096, 100, varptr(sa_attr))
+    hw_pipe = CreateFileA(pipe_name, 0x40000000, 0, varptr(sa_attr), 3, 0x00000080, 0)
+    return
+
+/*
+Win32APIのtimeout引数値を計算する
+引数
+    timeout: 設定されたタイムアウト時間
+    start_time: プロセスが開始した時刻
+返り値
+    タイムアウト値
+*/
+#defcfunc _compute_win32_timeout_value int timeout_value, int start_time_value, local time_spent
+    if timeout_value == 0xFFFFFFFF {
+        return timeout_value
+    }
+    time_spent = timeGetTime() - start_time_value
+    if timeout_value - time_spent <= 0 {
+        return 0
+    }
+    return timeout_value - time_spent
+
+#global
+
+#endif

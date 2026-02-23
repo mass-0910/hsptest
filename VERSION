@@ -1,6 +1,6 @@
 # encoing Shift-JIS
-_PRODUCTVERSION=0.10
+_PRODUCTVERSION=0.11
 Comments=HSP3 testing framework
 FileDescription=hsptest exe file
-LegalCopyright=(c)2023 mass-0910
+LegalCopyright=(c)2026 mass-0910
 ProductName=hsptest
